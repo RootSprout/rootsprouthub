@@ -15,6 +15,7 @@ import EventsPage from './pages/EventsPage';
 import PartnersPage from './pages/PartnersPage';
 import CommunityPage from './pages/CommunityPage';
 import VideosPage from './pages/VideosPage';
+import SponsorshipPage from './pages/SponsorshipPage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -40,6 +41,7 @@ export default function App() {
             <Route path="/partners" element={<PartnersPage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/videos" element={<VideosPage />} />
+            <Route path="/sponsorship" element={<SponsorshipPage />} />
           </Routes>
         </main>
         <Footer />

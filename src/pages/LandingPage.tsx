@@ -423,6 +423,42 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      <section id="sponsorship" className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="glass border border-white/10 rounded-3xl p-10 md:p-14 grid md:grid-cols-[1.2fr_0.8fr] gap-10 items-center">
+            <div>
+              <div className="text-xs text-gold font-bold uppercase tracking-widest mb-3">Sponsorship</div>
+              <h2 className="text-4xl font-bold mb-4">Support the next wave of builders</h2>
+              <p className="text-white/60 mb-6">
+                Support Rootsprout and help power real-world systems education, community events, and open-source learning.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  to="/sponsorship"
+                  className="px-6 py-3 rounded-full bg-gold text-black-deep text-sm font-bold hover:glow-gold-strong transition-all"
+                >
+                  Become a Sponsor
+                </Link>
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLScxFDu-jxxNVz4DlDkYhsJIh9BA1-8tmJdz1JIsBPIui1OKwg/viewform?usp=publish-editor"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-6 py-3 rounded-full border border-white/10 text-sm font-bold hover:bg-gold hover:text-black-deep hover:border-gold transition-all"
+                >
+                  Open the Form
+                </a>
+              </div>
+            </div>
+            <div className="glass border border-white/10 rounded-2xl overflow-hidden bg-black-soft/60">
+              <div className="p-6">
+                <div className="text-sm text-white/60">Sponsorship</div>
+                <div className="text-xl font-bold mt-2">Support Rootsprout</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 };
