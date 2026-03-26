@@ -52,7 +52,11 @@ export default function Dashboard() {
         setGoals(data.goals.length ? data.goals : DEFAULT_GOALS);
         setAchievements(data.achievements.length ? data.achievements.map((a) => a.id) : [1, 2, 3, 4, 5]);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err instanceof Error && err.message === 'unauthorized') {
+          navigate('/login');
+          return;
+        }
         setDashboardNodes(INITIAL_NODES);
         setGoals(DEFAULT_GOALS);
         setAchievements([1, 2, 3, 4, 5]);
@@ -115,8 +119,8 @@ export default function Dashboard() {
           <div className="relative flex flex-col items-center py-20">
             {/* Connection Lines (SVG) */}
             <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
-              {nodes.slice(0, -1).map((node, i) => {
-                const nextNode = nodes[i + 1];
+              {dashboardNodes.slice(0, -1).map((node, i) => {
+                const nextNode = dashboardNodes[i + 1];
                 return (
                   <line
                     key={i}

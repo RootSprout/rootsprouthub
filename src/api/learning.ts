@@ -59,11 +59,11 @@ export type ValidatePayload = {
 };
 
 export async function getDashboard() {
-  return apiRequest<DashboardPayload>('/learning/dashboard');
+  return apiRequest<DashboardPayload>('/learning/dashboard', {}, true);
 }
 
 export async function getLesson(id: string) {
-  return apiRequest<LessonPayload>(`/learning/lessons/${id}`);
+  return apiRequest<LessonPayload>(`/learning/lessons/${id}`, {}, true);
 }
 
 export async function validateCommand(lessonId: string, stepId: number, input: string) {
@@ -72,6 +72,7 @@ export async function validateCommand(lessonId: string, stepId: number, input: s
     {
       method: 'POST',
       body: JSON.stringify({ input }),
-    }
+    },
+    true
   );
 }

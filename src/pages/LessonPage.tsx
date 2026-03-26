@@ -27,7 +27,11 @@ export default function LessonPage() {
         setActiveStep(0);
         setProgress(data.steps.length > 0 ? Math.round(100 / data.steps.length) : 0);
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err instanceof Error && err.message === 'unauthorized') {
+          navigate('/login');
+          return;
+        }
         if (!mounted) return;
         setSteps([]);
         setProgress(0);
@@ -67,7 +71,11 @@ export default function LessonPage() {
       } else {
         setTimeout(() => setIsCorrect(null), 2000);
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message === 'unauthorized') {
+        navigate('/login');
+        return;
+      }
       newHistory.push('Error: Unable to validate command right now.');
       setIsCorrect(false);
       setTimeout(() => setIsCorrect(null), 2000);
