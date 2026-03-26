@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import SkillNode from '../components/SkillNode';
@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [goals, setGoals] = useState(DEFAULT_GOALS);
   const [achievements, setAchievements] = useState<number[]>([1, 2, 3, 4, 5]);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
   const handleNodeClick = (node: Node) => {
@@ -35,6 +36,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
     let mounted = true;
     getDashboard()
       .then((data) => {
@@ -66,8 +71,18 @@ export default function Dashboard() {
       });
     return () => {
       mounted = false;
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  const orderedNodes = useMemo(() => {
+    const sorted = [...dashboardNodes].sort((a, b) => Number(a.id) - Number(b.id));
+    if (!isMobile) return sorted;
+    return sorted.map((node, index) => ({
+      ...node,
+      position: { x: 0, y: index * 140 },
+    }));
+  }, [dashboardNodes, isMobile]);
 
   const xpProgress = Math.min(
     100,
@@ -129,8 +144,8 @@ export default function Dashboard() {
           <div className="relative flex flex-col items-center py-20">
             {/* Connection Lines (SVG) */}
             <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
-              {dashboardNodes.slice(0, -1).map((node, i) => {
-                const nextNode = dashboardNodes[i + 1];
+              {orderedNodes.slice(0, -1).map((node, i) => {
+                const nextNode = orderedNodes[i + 1];
                 return (
                   <line
                     key={i}
@@ -146,8 +161,8 @@ export default function Dashboard() {
               })}
             </svg>
 
-            <div className="relative z-10 flex flex-col items-center gap-24">
-              {dashboardNodes.map((node) => (
+            <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'gap-0' : 'gap-24'}`}>
+              {orderedNodes.map((node) => (
                 <SkillNode 
                   key={node.id} 
                   node={node} 

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Terminal as TerminalIcon, Play, CheckCircle2, XCircle, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { getLesson, validateCommand, type LessonStep } from '../api/learning';
+import { getLesson, validateCommand, completeLesson, type LessonStep } from '../api/learning';
 
 export default function LessonPage() {
   const { id } = useParams();
@@ -163,7 +163,15 @@ export default function LessonPage() {
               <motion.button
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                onClick={() => navigate('/dashboard')}
+                onClick={async () => {
+                  if (!id) return;
+                  try {
+                    await completeLesson(id);
+                  } catch {
+                    // ignore and still navigate back
+                  }
+                  navigate('/dashboard');
+                }}
                 className="rounded-xl bg-primary px-8 py-3 font-bold text-background glow-gold hover:scale-105 transition-all"
               >
                 Finish Lesson

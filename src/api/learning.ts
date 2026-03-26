@@ -65,6 +65,10 @@ export type ValidatePayload = {
   message: string;
 };
 
+export type CompletePayload = {
+  message: string;
+};
+
 export async function getDashboard() {
   return apiRequest<DashboardPayload>('/learning/dashboard', {}, true);
 }
@@ -79,6 +83,16 @@ export async function validateCommand(lessonId: string, stepId: number, input: s
     {
       method: 'POST',
       body: JSON.stringify({ input }),
+    },
+    true
+  );
+}
+
+export async function completeLesson(lessonId: string) {
+  return apiRequest<CompletePayload>(
+    `/learning/lessons/${lessonId}/complete`,
+    {
+      method: 'POST',
     },
     true
   );
