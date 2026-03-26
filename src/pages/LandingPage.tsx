@@ -116,46 +116,50 @@ const LandingPage = () => {
     <>
       <Hero />
       <section id="learning" className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(250,204,21,0.12),_transparent_55%)] -z-10" />
-        <div className="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-black-deep to-transparent -z-10" />
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-sm text-white/60 mb-4">RootsproutHub Learning</p>
-          <h2 className="text-4xl font-bold mb-4">
-            Master <span className="text-gold">Systems</span> Through Play.
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(250,204,21,0.1),_transparent_55%)] -z-10" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,_rgba(0,0,0,0.4),_rgba(0,0,0,0.9))] -z-10" />
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <p className="text-sm uppercase tracking-[0.3em] text-white/50 mb-4">RootsproutHub Learning</p>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight uppercase mb-4">
+            MASTER <span className="text-gold">SYSTEMS</span>
+            <span className="block">THROUGH PLAY.</span>
           </h2>
-          <p className="text-white/60 max-w-3xl mx-auto mb-12">
+          <p className="text-sm md:text-base text-white/50 max-w-2xl mx-auto mb-10 font-mono leading-relaxed">
             The gamified way to learn operating systems, databases, and networking. Interactive simulations, terminal challenges, and a community of system architects.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 mb-14">
-            <Link to="/dashboard" className="bg-gold text-black-deep px-10 py-4 rounded-xl font-bold text-base flex items-center gap-2 glow-gold hover:glow-gold-strong transition-all">
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            <Link to="/dashboard" className="bg-gold text-black-deep px-7 py-3 rounded-xl font-bold flex items-center gap-2 glow-gold hover:glow-gold-strong transition-all">
               Start Learning <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link to="/projects" className="px-8 py-3.5 rounded-xl font-bold border border-white/10 bg-white/5 hover:bg-white/10 transition-all">
+              View Curriculum
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-gold/30 transition-all">
-              <div className="w-10 h-10 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+            <div className="bg-[#111]/70 border border-white/10 rounded-2xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:border-gold/30 transition-all">
+              <div className="w-11 h-11 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
                 <Code2 className="w-5 h-5 text-gold" />
               </div>
               <p className="text-lg font-bold mb-1">OS Internals</p>
               <p className="text-sm text-white/50">Kernels, scheduling, and virtual memory.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-gold/30 transition-all">
-              <div className="w-10 h-10 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
+            <div className="bg-[#111]/70 border border-white/10 rounded-2xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:border-gold/30 transition-all">
+              <div className="w-11 h-11 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
                 <Shield className="w-5 h-5 text-gold" />
               </div>
               <p className="text-lg font-bold mb-1">Databases</p>
               <p className="text-sm text-white/50">Indexing, ACID, and storage engines.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-gold/30 transition-all">
-              <div className="w-10 h-10 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
+            <div className="bg-[#111]/70 border border-white/10 rounded-2xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:border-gold/30 transition-all">
+              <div className="w-11 h-11 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
                 <Globe className="w-5 h-5 text-gold" />
               </div>
               <p className="text-lg font-bold mb-1">Networking</p>
               <p className="text-sm text-white/50">TCP/IP, HTTP/3, and system design.</p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-gold/30 transition-all">
-              <div className="w-10 h-10 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
+            <div className="bg-[#111]/70 border border-white/10 rounded-2xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:border-gold/30 transition-all">
+              <div className="w-11 h-11 bg-gold/15 rounded-xl flex items-center justify-center mb-4">
                 <Zap className="w-5 h-5 text-gold" />
               </div>
               <p className="text-lg font-bold mb-1">Terminal Ops</p>
