@@ -76,7 +76,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <LearningNavbar />
+      <LearningNavbar userName={user?.name} xp={stats.totalXP} streak={stats.level} />
       
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-10 lg:grid-cols-12">
         {/* Left Sidebar - Stats */}

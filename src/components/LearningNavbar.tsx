@@ -10,7 +10,13 @@ const navItems = [
   { icon: PenSquare, label: 'Blogs', path: '/blogs' },
 ];
 
-export default function LearningNavbar() {
+type LearningNavbarProps = {
+  userName?: string;
+  xp?: number;
+  streak?: number;
+};
+
+export default function LearningNavbar({ userName, xp = 0, streak = 0 }: LearningNavbarProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,15 +55,15 @@ export default function LearningNavbar() {
           <div className="flex items-center gap-4 border-l border-white/10 pl-8">
             <div className="flex items-center gap-1.5 text-primary">
               <Flame size={18} fill="currentColor" />
-              <span className="text-sm font-bold">12</span>
+              <span className="text-sm font-bold">{streak}</span>
             </div>
             <div className="flex items-center gap-1.5 text-blue-400">
               <Zap size={18} fill="currentColor" />
-              <span className="text-sm font-bold">2,450 XP</span>
+              <span className="text-sm font-bold">{xp.toLocaleString()} XP</span>
             </div>
             <div className="h-8 w-8 rounded-full bg-white/10 border border-white/20 overflow-hidden">
               <img 
-                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userName || 'rootsprout')}`} 
                 alt="Avatar"
                 referrerPolicy="no-referrer"
               />
