@@ -16,6 +16,10 @@ import PartnersPage from './pages/PartnersPage';
 import CommunityPage from './pages/CommunityPage';
 import VideosPage from './pages/VideosPage';
 import SponsorshipPage from './pages/SponsorshipPage';
+import Dashboard from './pages/Dashboard';
+import LessonPage from './pages/LessonPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -25,27 +29,40 @@ const ScrollToTop = () => {
   return null;
 };
 
+const AppShell = () => {
+  const location = useLocation();
+  const hideChrome = location.pathname.startsWith('/lesson') || location.pathname.startsWith('/dashboard');
+
+  return (
+    <div className="min-h-screen bg-black-deep font-sans selection:bg-gold selection:text-black-deep">
+      {!hideChrome && <Navbar />}
+      <main>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/blogs" element={<BlogsPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/books" element={<BooksPage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/videos" element={<VideosPage />} />
+          <Route path="/sponsorship" element={<SponsorshipPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/lesson/:id" element={<LessonPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+      </main>
+      {!hideChrome && <Footer />}
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen bg-black-deep font-sans selection:bg-gold selection:text-black-deep">
-        <Navbar />
-        <main>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/blogs" element={<BlogsPage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/books" element={<BooksPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/partners" element={<PartnersPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            <Route path="/videos" element={<VideosPage />} />
-            <Route path="/sponsorship" element={<SponsorshipPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <AppShell />
     </Router>
   );
 }

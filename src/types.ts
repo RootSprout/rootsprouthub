@@ -72,3 +72,22 @@ export interface Video {
   link: string;
   image: string;
 }
+
+export type Topic = 'OS' | 'DB' | 'Networking' | 'Distributed Systems' | 'System Design';
+
+export interface Node {
+  id: string;
+  title: string;
+  topic: Topic;
+  status: 'locked' | 'available' | 'completed';
+  progress: number;
+  position: { x: number; y: number };
+}
+
+export interface User {
+  name: string;
+  xp: number;
+  streak: number;
+  level: number;
+  badges: string[];
+}

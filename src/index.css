@@ -2,6 +2,11 @@
 @import "tailwindcss";
 
 @theme {
+  --color-primary: #FFC107;
+  --color-background: #0B0B0B;
+  --color-surface: #141414;
+  --color-surface-hover: #1C1C1C;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --color-gold: #FFC300;
   --color-gold-light: #FFD700;
   --color-black-deep: #0B0B0B;
