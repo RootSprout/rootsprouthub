@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 import rootsproutLogo from '../assets/rootsprout-logo.svg';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: LayoutDashboard, label: 'Main', path: '/' },
   { icon: Users, label: 'Community', path: '/community' },
   { icon: Video, label: 'Videos', path: '/videos' },
   { icon: PenSquare, label: 'Blogs', path: '/blogs' },
@@ -42,7 +42,7 @@ export default function LearningNavbar({
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-black-deep">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-3 group">
+        <Link to="/home" className="flex items-center gap-3 group">
           <div className="w-11 h-11 rounded-2xl overflow-hidden bg-black-deep border border-gold/40 glow-gold group-hover:glow-gold-strong transition-all flex items-center justify-center">
             <img src={rootsproutLogo} alt="Rootsprout logo" className="w-9 h-9 object-contain" />
           </div>

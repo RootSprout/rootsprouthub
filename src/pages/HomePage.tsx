@@ -168,6 +168,9 @@ const ExploreCourses = () => (
 export default function HomePage() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState<string | undefined>();
+  const [userEmail, setUserEmail] = useState<string | undefined>();
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(0);
   const [streakMonth, setStreakMonth] = useState<{ year: number; month: number; days: { date: string; completed: boolean }[] } | null>(null);
   const [achievements, setAchievements] = useState<number[]>([]);
 
@@ -177,6 +180,9 @@ export default function HomePage() {
       .then((data) => {
         if (!mounted) return;
         setUserName(data.user?.name);
+        setUserEmail(data.user?.email);
+        setXp(data.stats?.totalXP ?? 0);
+        setLevel(data.stats?.level ?? 0);
         setStreakMonth(data.streak ?? null);
         setAchievements(data.achievements?.map((item) => item.id) ?? []);
       })
@@ -219,7 +225,7 @@ export default function HomePage() {
         <div className="absolute bottom-[-10%] left-[-10%] h-[50%] w-[50%] rounded-full bg-gold/5 blur-[120px]" />
       </div>
 
-      <LearningNavbar userName={userName} xp={0} streak={streakCount} />
+      <LearningNavbar userName={userName} xp={xp} streak={level} />
 
       <motion.main
         className="px-6 pb-12 pt-10"
@@ -227,6 +233,12 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
+        <div className="mb-8 text-left">
+          <h2 className="text-4xl font-bold text-gold">
+            Welcome back {userName || 'Learner'}
+          </h2>
+          <p className="mt-1 text-base text-white/60">{userEmail || ''}</p>
+        </div>
         <div className="grid gap-8 md:grid-cols-[2fr,1fr]">
           <div className="rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(255,195,0,0.2),transparent_55%)] p-8 shadow-[0_24px_70px_rgba(0,0,0,0.5)]">
             <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-gold/70">

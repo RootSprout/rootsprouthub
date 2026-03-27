@@ -8,6 +8,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const isLoggedIn = Boolean(localStorage.getItem('rs_token'));
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -49,18 +50,29 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
-          <Link
-            to="/login"
-            className="text-[13px] font-medium text-white/70 hover:text-gold transition-colors"
-          >
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="bg-gold text-black-deep px-5 py-2 rounded-full text-[13px] font-bold glow-gold hover:glow-gold-strong hover:scale-105 transition-all"
-          >
-            Register
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              to="/home"
+              className="bg-gold text-black-deep px-5 py-2 rounded-full text-[13px] font-bold glow-gold hover:glow-gold-strong hover:scale-105 transition-all"
+            >
+              Rootsprouthub
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-[13px] font-medium text-white/70 hover:text-gold transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="bg-gold text-black-deep px-5 py-2 rounded-full text-[13px] font-bold glow-gold hover:glow-gold-strong hover:scale-105 transition-all"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
 
         <button 
@@ -91,20 +103,32 @@ const Navbar = () => {
                 </Link>
               ))}
               <hr className="border-white/10" />
-              <Link
-                to="/login"
-                className="text-base font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="bg-gold text-black-deep w-full py-3 rounded-xl text-sm font-bold text-center"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Register
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  to="/home"
+                  className="bg-gold text-black-deep w-full py-3 rounded-xl text-sm font-bold text-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Rootsprouthub
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-base font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="bg-gold text-black-deep w-full py-3 rounded-xl text-sm font-bold text-center"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
               <Link
                 to="/community"
                 className="border border-white/10 text-white/80 w-full py-3 rounded-xl text-sm font-bold text-center hover:text-white hover:border-white/20 transition-colors"
