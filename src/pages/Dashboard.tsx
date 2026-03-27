@@ -358,20 +358,30 @@ export default function Dashboard() {
                   <div className="mb-16 text-xl font-bold uppercase tracking-widest text-white/85">
                     {section.title}
                   </div>
-                  <div className="relative flex w-full max-w-[360px] flex-col gap-4 px-4 md:px-0">
-                    {section.nodes.map((node, index) => (
-                      <div
-                        key={node.id}
-                        className={`flex w-full h-[110px] items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
-                      >
-                        <SkillNode
-                          node={node}
-                          isLast={index === section.nodes.length - 1}
-                          onClick={handleNodeClick}
-                        />
+                  {(() => {
+                    const rowHeight = 130;
+                    const slantOffset = 18;
+                    const direction = sectionIndex % 2 === 0 ? -1 : 1;
+                    return (
+                      <div className="relative w-full max-w-[300px] px-4 md:px-0">
+                        <div className="relative z-10 flex w-full flex-col gap-6">
+                          {section.nodes.map((node, index) => (
+                            <div
+                              key={node.id}
+                              className="flex w-full h-[130px] items-center justify-center"
+                              style={{ transform: `translateX(${index * slantOffset * direction}px)` }}
+                            >
+                              <SkillNode
+                                node={node}
+                                isLast={index === section.nodes.length - 1}
+                                onClick={handleNodeClick}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })()}
                   <div className="mt-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/60 bg-black-deep text-gold shadow-[0_10px_25px_rgba(0,0,0,0.45)]">
                     <span className="text-2xl">🎁</span>
                   </div>
