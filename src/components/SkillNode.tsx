@@ -1,15 +1,16 @@
 import React, { type FC } from 'react';
 import { motion } from 'motion/react';
-import { Lock, Check, Play } from 'lucide-react';
+import { Lock, Check, Play, Flag, Gift } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Node } from '../types';
 
 interface SkillNodeProps {
   node: Node;
   onClick: (node: Node) => void;
+  isLast?: boolean;
 }
 
-const SkillNode: FC<SkillNodeProps> = ({ node, onClick }) => {
+const SkillNode: FC<SkillNodeProps> = ({ node, onClick, isLast }) => {
   const isLocked = node.status === 'locked';
   const isCompleted = node.status === 'completed';
 
@@ -39,7 +40,7 @@ const SkillNode: FC<SkillNodeProps> = ({ node, onClick }) => {
         {isLocked ? (
           <Lock size={24} />
         ) : isCompleted ? (
-          <Check size={28} strokeWidth={3} />
+          <Flag size={24} />
         ) : (
           <Play size={24} fill="currentColor" className="ml-1" />
         )}
@@ -60,6 +61,12 @@ const SkillNode: FC<SkillNodeProps> = ({ node, onClick }) => {
           </svg>
         )}
       </button>
+
+      {isCompleted && isLast && (
+        <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-xl border border-gold/40 bg-gold/10 text-gold">
+          <Gift size={16} />
+        </div>
+      )}
 
       <div className="text-center">
         <span className={cn(

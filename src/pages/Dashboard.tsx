@@ -92,12 +92,37 @@ export default function Dashboard() {
 
   const orderedNodes = useMemo(() => {
     const sorted = [...dashboardNodes].sort((a, b) => Number(a.id) - Number(b.id));
-    if (!isMobile) return sorted;
-    return sorted.map((node, index) => ({
+    const filtered = activeTopic ? sorted.filter((node) => node.topic === activeTopic) : sorted;
+    if (!isMobile) return filtered;
+    return filtered.map((node, index) => ({
       ...node,
       position: { x: 0, y: index * 140 },
     }));
-  }, [dashboardNodes, isMobile]);
+  }, [dashboardNodes, isMobile, activeTopic]);
+
+  const filteredNodes = useMemo(() => {
+    return orderedNodes;
+  }, [orderedNodes, activeTopic]);
+
+  const topicProgress = useMemo(() => {
+    const progress: Record<string, { total: number; completed: number }> = {};
+    dashboardNodes.forEach((node) => {
+      if (!progress[node.topic]) {
+        progress[node.topic] = { total: 0, completed: 0 };
+      }
+      progress[node.topic].total += 1;
+      if (node.status === 'completed') {
+        progress[node.topic].completed += 1;
+      }
+    });
+    return progress;
+  }, [dashboardNodes]);
+
+  const topicCompletion = useMemo(() => {
+    if (!activeTopic) return { completed: 0, total: 0 };
+    const progress = topicProgress[activeTopic] || { total: 0, completed: 0 };
+    return progress;
+  }, [activeTopic, topicProgress]);
 
   const xpProgress = Math.min(
     100,
@@ -159,8 +184,8 @@ export default function Dashboard() {
           <div className="relative flex flex-col items-center py-20">
             {/* Connection Lines (SVG) */}
             <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
-              {orderedNodes.slice(0, -1).map((node, i) => {
-                const nextNode = orderedNodes[i + 1];
+              {filteredNodes.slice(0, -1).map((node, i) => {
+                const nextNode = filteredNodes[i + 1];
                 return (
                   <line
                     key={i}
@@ -177,10 +202,11 @@ export default function Dashboard() {
             </svg>
 
             <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'gap-0' : 'gap-24'}`}>
-              {orderedNodes.map((node) => (
+              {filteredNodes.map((node, index) => (
                 <SkillNode 
                   key={node.id} 
                   node={node} 
+                  isLast={index === filteredNodes.length - 1}
                   onClick={handleNodeClick} 
                 />
               ))}
@@ -225,26 +251,49 @@ export default function Dashboard() {
 
             {roadmaps.length > 0 && (
               <>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {roadmaps.map((topic) => (
-                    <button
-                      key={topic.topic}
-                      onClick={() => setActiveTopic(topic.topic)}
-                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                        activeTopic === topic.topic
-                          ? 'bg-gold text-black-deep'
-                          : 'bg-white/5 text-white/60 hover:text-white'
-                      }`}
-                    >
-                      {topic.topic}
-                    </button>
-                  ))}
+                <div className="space-y-3 mb-4">
+                  {roadmaps.map((topic) => {
+                    const progress = topicProgress[topic.topic] || { total: 0, completed: 0 };
+                    return (
+                      <button
+                        key={topic.topic}
+                        onClick={() => setActiveTopic(topic.topic)}
+                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
+                          activeTopic === topic.topic
+                            ? 'border-gold/50 bg-gold/10'
+                            : 'border-white/10 bg-white/5 hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold uppercase tracking-widest text-white/70">
+                            {topic.topic}
+                          </span>
+                          <span className="text-[10px] text-white/50">
+                            {progress.completed}/{progress.total || topic.sections.length}
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                          <div
+                            className="h-full bg-gold/70"
+                            style={{
+                              width: progress.total
+                                ? `${Math.round((progress.completed / progress.total) * 100)}%`
+                                : '0%',
+                            }}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {roadmaps
                   .filter((topic) => topic.topic === activeTopic)
                   .map((topic) => (
                     <div key={topic.topic} className="space-y-4">
+                      <div className="text-xs font-bold uppercase tracking-widest text-white/40">
+                        {topic.topic}
+                      </div>
                       {topic.sections.map((section) => (
                         <div key={section.title} className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
                           <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
