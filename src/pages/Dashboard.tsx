@@ -93,16 +93,74 @@ export default function Dashboard() {
   const orderedNodes = useMemo(() => {
     const sorted = [...dashboardNodes].sort((a, b) => Number(a.id) - Number(b.id));
     const filtered = activeTopic ? sorted.filter((node) => node.topic === activeTopic) : sorted;
-    if (!isMobile) return filtered;
-    return filtered.map((node, index) => ({
-      ...node,
-      position: { x: 0, y: index * 140 },
-    }));
-  }, [dashboardNodes, isMobile, activeTopic]);
+    return filtered;
+  }, [dashboardNodes, activeTopic]);
 
-  const filteredNodes = useMemo(() => {
-    return orderedNodes;
-  }, [orderedNodes, activeTopic]);
+  const sectionLessonMap = useMemo(
+    () => ({
+      OS: {
+        Memory: ['Memory Layout'],
+        CPU: ['Process Basics'],
+        'File System': ['File Systems'],
+      },
+      DB: {
+        SQL: ['SQL Fundamentals'],
+        Indexing: ['Indexing'],
+      },
+      Networking: {
+        Core: ['TCP/IP Stack'],
+      },
+      'Distributed Systems': {},
+    }),
+    []
+  );
+
+  const roadmapSections = useMemo(() => {
+    if (!activeTopic) return [];
+    const map = sectionLessonMap[activeTopic as keyof typeof sectionLessonMap];
+    if (!map) return [];
+    return Object.entries(map).map(([title, lessons]) => {
+      const nodes = orderedNodes.filter((node) => lessons.includes(node.title));
+      const completed = nodes.length > 0 && nodes.every((node) => node.status === 'completed');
+      return { title, nodes, completed };
+    });
+  }, [activeTopic, orderedNodes, sectionLessonMap]);
+
+  const layoutSections = useMemo(() => {
+    if (roadmapSections.length === 0) {
+      return [
+        {
+          title: activeTopic || 'Roadmap',
+          completed: false,
+          nodes: orderedNodes.map((node, index) => ({
+            ...node,
+            position: {
+              x: isMobile ? 0 : index % 2 === 0 ? -80 : 80,
+              y: index * 140,
+            },
+          })),
+        },
+      ];
+    }
+    let offsetIndex = 0;
+    return roadmapSections.map((section) => {
+      const nodes = section.nodes.map((node, index) => {
+        const zigzagIndex = offsetIndex + index;
+        const xOffset = isMobile ? 0 : zigzagIndex % 2 === 0 ? -80 : 80;
+        const yOffset = zigzagIndex * 140;
+        return {
+          ...node,
+          position: { x: xOffset, y: yOffset },
+        };
+      });
+      offsetIndex += section.nodes.length + 1;
+      return { ...section, nodes };
+    });
+  }, [roadmapSections, isMobile]);
+
+  const layoutNodes = useMemo(() => {
+    return layoutSections.flatMap((section) => section.nodes);
+  }, [layoutSections]);
 
   const topicProgress = useMemo(() => {
     const progress: Record<string, { total: number; completed: number }> = {};
@@ -133,9 +191,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       <LearningNavbar userName={user?.name} xp={stats.totalXP} streak={stats.level} />
       
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-10 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-10 pb-24 lg:grid-cols-12">
         {/* Left Sidebar - Stats */}
-        <aside className="lg:col-span-3 space-y-6">
+        <aside className="hidden lg:block lg:col-span-3 space-y-6">
           {user && (
             <div className="rounded-2xl border border-white/10 bg-surface p-6">
               <h2 className="mb-2 text-xl font-bold text-white">Welcome back, {user.name}!</h2>
@@ -182,40 +240,73 @@ export default function Dashboard() {
         {/* Main Content - Skill Tree */}
         <main className="lg:col-span-6">
           <div className="relative flex flex-col items-center py-20">
-            {/* Connection Lines (SVG) */}
-            <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
-              {filteredNodes.slice(0, -1).map((node, i) => {
-                const nextNode = filteredNodes[i + 1];
-                return (
-                  <line
-                    key={i}
-                    x1={`calc(50% + ${node.position.x}px)`}
-                    y1={`${node.position.y + 100}px`}
-                    x2={`calc(50% + ${nextNode.position.x}px)`}
-                    y2={`${nextNode.position.y + 100}px`}
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeDasharray="8 8"
-                  />
-                );
-              })}
-            </svg>
-
-            <div className={`relative z-10 flex flex-col items-center ${isMobile ? 'gap-0' : 'gap-24'}`}>
-              {filteredNodes.map((node, index) => (
-                <SkillNode 
-                  key={node.id} 
-                  node={node} 
-                  isLast={index === filteredNodes.length - 1}
-                  onClick={handleNodeClick} 
-                />
+            {isMobile && user && (
+              <div className="w-full max-w-md mb-8 rounded-2xl border border-white/10 bg-surface p-5">
+                <h2 className="text-lg font-bold text-white">Welcome back, {user.name}!</h2>
+                <p className="text-xs text-white/50">{user.email}</p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">XP</p>
+                    <p className="text-sm font-bold">{stats.totalXP.toLocaleString()}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">Level</p>
+                    <p className="text-sm font-bold">{stats.level}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-10">
+              {layoutSections.map((section, sectionIndex) => (
+                <div key={section.title} className="w-full flex flex-col items-center relative">
+                  <div className="mb-6 text-xs font-bold uppercase tracking-widest text-white/50">
+                    {section.title}
+                  </div>
+                  <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
+                    {section.nodes.slice(0, -1).map((node, i) => {
+                      const nextNode = section.nodes[i + 1];
+                      const x1 = 160 + node.position.x;
+                      const y1 = node.position.y + 100;
+                      const x2 = 160 + nextNode.position.x;
+                      const y2 = nextNode.position.y + 100;
+                      const cx = (x1 + x2) / 2;
+                      const cy = (y1 + y2) / 2 - 30;
+                      return (
+                        <path
+                          key={`${section.title}-${i}`}
+                          d={`M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`}
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeDasharray="8 8"
+                          fill="none"
+                        />
+                      );
+                    })}
+                  </svg>
+                  <div className="relative flex flex-col items-center gap-8 z-10">
+                    {section.nodes.map((node, index) => (
+                      <SkillNode
+                        key={node.id}
+                        node={node}
+                        isLast={index === section.nodes.length - 1}
+                        onClick={handleNodeClick}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-6 flex h-10 w-10 items-center justify-center rounded-2xl border border-gold/40 bg-gold/10 text-gold">
+                    <span className="text-lg">🎁</span>
+                  </div>
+                  {sectionIndex < layoutSections.length - 1 && (
+                    <div className="my-10 h-px w-full bg-white/10" />
+                  )}
+                </div>
               ))}
             </div>
           </div>
         </main>
 
         {/* Right Sidebar - Daily Goals */}
-        <aside className="lg:col-span-3 space-y-6">
+        <aside className="hidden lg:block lg:col-span-3 space-y-6">
           <div className="rounded-2xl border border-white/10 bg-surface p-6">
             <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Daily Goals</h2>
             <div className="space-y-4">
@@ -325,6 +416,24 @@ export default function Dashboard() {
           </div>
         </aside>
       </div>
+
+      {isMobile && roadmaps.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black-deep/90 backdrop-blur-md">
+          <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
+            {roadmaps.map((topic) => (
+              <button
+                key={topic.topic}
+                onClick={() => setActiveTopic(topic.topic)}
+                className={`text-[10px] font-bold uppercase tracking-widest ${
+                  activeTopic === topic.topic ? 'text-gold' : 'text-white/50'
+                }`}
+              >
+                {topic.topic}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

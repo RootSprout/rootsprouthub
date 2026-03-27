@@ -13,6 +13,7 @@ interface SkillNodeProps {
 const SkillNode: FC<SkillNodeProps> = ({ node, onClick, isLast }) => {
   const isLocked = node.status === 'locked';
   const isCompleted = node.status === 'completed';
+  const isActive = node.status === 'available';
 
   return (
     <motion.div
@@ -59,6 +60,10 @@ const SkillNode: FC<SkillNodeProps> = ({ node, onClick, isLast }) => {
               className="text-primary/20"
             />
           </svg>
+        )}
+
+        {isActive && (
+          <span className="absolute -inset-3 rounded-full border border-primary/40 animate-pulse" />
         )}
       </button>
 
