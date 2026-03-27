@@ -18,6 +18,7 @@ import PartnersPage from './pages/PartnersPage';
 import CommunityPage from './pages/CommunityPage';
 import VideosPage from './pages/VideosPage';
 import SponsorshipPage from './pages/SponsorshipPage';
+import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import LessonPage from './pages/LessonPage';
 import LoginPage from './pages/LoginPage';
@@ -33,7 +34,10 @@ const ScrollToTop = () => {
 
 const AppShell = () => {
   const location = useLocation();
-  const hideChrome = location.pathname.startsWith('/lesson') || location.pathname.startsWith('/dashboard');
+  const hideChrome =
+    location.pathname.startsWith('/lesson') ||
+    location.pathname.startsWith('/dashboard') ||
+    location.pathname.startsWith('/home');
 
   return (
     <div className="min-h-screen bg-black-deep font-sans selection:bg-gold selection:text-black-deep">
@@ -52,6 +56,7 @@ const AppShell = () => {
           
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/home" element={<HomePage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/lesson/:id" element={<LessonPage />} />
           </Route>

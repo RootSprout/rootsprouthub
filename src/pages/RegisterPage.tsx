@@ -16,7 +16,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       await register(name.trim(), email.trim(), password);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to create account.');
     } finally {

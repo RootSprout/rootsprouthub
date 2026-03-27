@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import SkillNode from '../components/SkillNode';
 import LearningNavbar from '../components/LearningNavbar';
 import { Node } from '../types';
-import { Trophy, Target, Star } from 'lucide-react';
+import { Check, Lock, Play, BadgeCheck } from 'lucide-react';
 import { getDashboard, getRoadmaps, type RoadmapTopic } from '../api/learning';
 
 const INITIAL_NODES: Node[] = [
@@ -16,23 +14,12 @@ const INITIAL_NODES: Node[] = [
   { id: '6', title: 'TCP/IP Stack', topic: 'Networking', status: 'locked', progress: 0, position: { x: -120, y: 600 } },
 ];
 
-const DEFAULT_GOALS = [
-  { label: 'Complete 2 lessons', progress: 50 },
-  { label: 'Earn 100 XP', progress: 80 },
-  { label: 'Fix 1 DB query', progress: 0 },
-];
-
 export default function Dashboard() {
   const [dashboardNodes, setDashboardNodes] = useState<Node[]>(INITIAL_NODES);
   const [stats, setStats] = useState({ totalXP: 2450, level: 14, xpToNext: 350 });
-  const [goals, setGoals] = useState(DEFAULT_GOALS);
-  const [achievements, setAchievements] = useState<number[]>([1, 2, 3, 4, 5]);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
   const [roadmaps, setRoadmaps] = useState<RoadmapTopic[]>([]);
-  const [currentTopics, setCurrentTopics] = useState<string[]>([]);
   const [activeTopic, setActiveTopic] = useState<string>('');
-  const [streakMonth, setStreakMonth] = useState<{ year: number; month: number; days: { date: string; completed: boolean }[] } | null>(null);
   const navigate = useNavigate();
 
   const handleNodeClick = (node: Node) => {
@@ -40,10 +27,6 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
     let mounted = true;
     getDashboard()
       .then((data) => {
@@ -60,9 +43,6 @@ export default function Dashboard() {
         );
         setStats(data.stats);
         setUser(data.user);
-        setGoals(data.goals.length ? data.goals : DEFAULT_GOALS);
-        setAchievements(data.achievements.length ? data.achievements.map((a) => a.id) : [1, 2, 3, 4, 5]);
-        setStreakMonth(data.streak ?? null);
       })
       .catch((err) => {
         if (err instanceof Error && err.message === 'unauthorized') {
@@ -71,25 +51,19 @@ export default function Dashboard() {
         }
         setDashboardNodes(INITIAL_NODES);
         setUser(null);
-        setGoals(DEFAULT_GOALS);
-        setAchievements([1, 2, 3, 4, 5]);
-        setStreakMonth(null);
       });
 
     getRoadmaps()
       .then((data) => {
         if (!mounted) return;
         setRoadmaps(data.topics);
-        setCurrentTopics(data.currentTopics);
         setActiveTopic(data.currentTopics[0] || data.topics[0]?.topic || '');
       })
       .catch(() => {
         setRoadmaps([]);
-        setCurrentTopics([]);
       });
     return () => {
       mounted = false;
-      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -102,9 +76,9 @@ export default function Dashboard() {
   const sectionLessonMap = useMemo(
     () => ({
       OS: {
-        Memory: ['Memory Layout'],
-        CPU: ['Process Basics'],
-        'File System': ['File Systems'],
+        'Memory Management': ['Memory Layout'],
+        'CPU Scheduling': ['Process Basics'],
+        'File Systems': ['File Systems'],
       },
       DB: {
         SQL: ['SQL Fundamentals'],
@@ -123,64 +97,61 @@ export default function Dashboard() {
     const map = sectionLessonMap[activeTopic as keyof typeof sectionLessonMap];
     if (!map) return [];
     return Object.entries(map).map(([title, lessons]) => {
-      const nodes = orderedNodes.filter((node) => lessons.includes(node.title));
+      const nodes = orderedNodes.filter((node) => (lessons as string[]).includes(node.title));
       const completed = nodes.length > 0 && nodes.every((node) => node.status === 'completed');
       return { title, nodes, completed, topic: activeTopic };
     });
   }, [activeTopic, orderedNodes, sectionLessonMap]);
 
-  const layoutSections = useMemo(() => {
-    if (roadmapSections.length === 0) {
-      return [
-        {
-          title: activeTopic || 'Roadmap',
-          completed: false,
-          nodes: orderedNodes.map((node, index) => ({
-            ...node,
-            position: {
-              x: isMobile ? 0 : index % 2 === 0 ? -80 : 80,
-              y: index * 140,
-            },
-          })),
-        },
-      ];
-    }
-    return roadmapSections.map((section) => {
-      const baseNodes = section.nodes.map((node) => ({ ...node }));
-      const placeholders: Node[] = [
-        {
-          id: `${section.title}-placeholder-1`,
-          title: 'Coming Soon',
-          topic: section.topic as Node['topic'],
-          status: 'locked',
-          progress: 0,
-          position: { x: 0, y: 0 },
-        },
-        {
-          id: `${section.title}-placeholder-2`,
-          title: 'Coming Soon',
-          topic: section.topic as Node['topic'],
-          status: 'locked',
-          progress: 0,
-          position: { x: 0, y: 0 },
-        },
-      ];
-
-      const nodes = [...baseNodes, ...placeholders].map((node, index) => {
-        const xOffset = isMobile ? 0 : index % 2 === 0 ? -80 : 80;
-        const yOffset = index * 190;
-        return {
-          ...node,
-          position: { x: xOffset, y: yOffset },
-        };
+  const displaySections = useMemo(() => {
+    if (roadmapSections.length > 0) {
+      return roadmapSections.map((section) => {
+        const nodes = [...section.nodes];
+        if (section.topic === 'OS') {
+          if (section.title === 'Memory Management' && nodes.length < 2) {
+            nodes.push({
+              id: `${section.title}-stack-heap`,
+              title: 'Stack & Heap',
+              topic: section.topic,
+              status: 'locked',
+              progress: 0,
+              position: { x: 0, y: 0 },
+            });
+          }
+          if (section.title === 'CPU Scheduling' && nodes.length < 2) {
+            nodes.push({
+              id: `${section.title}-interrupts`,
+              title: 'Interrupts & syscalls',
+              topic: section.topic,
+              status: 'locked',
+              progress: 0,
+              position: { x: 0, y: 0 },
+            });
+          }
+          if (section.title === 'File Systems' && nodes.length < 1) {
+            nodes.push({
+              id: `${section.title}-io`,
+              title: 'I/O Scheduling',
+              topic: section.topic,
+              status: 'locked',
+              progress: 0,
+              position: { x: 0, y: 0 },
+            });
+          }
+        }
+        return { ...section, nodes };
       });
-      return { ...section, nodes };
-    });
-  }, [roadmapSections, isMobile]);
-
-  const layoutNodes = useMemo(() => {
-    return layoutSections.flatMap((section) => section.nodes);
-  }, [layoutSections]);
+    }
+    if (orderedNodes.length === 0) return [];
+    return [
+      {
+        title: 'Roadmap',
+        nodes: orderedNodes,
+        completed: false,
+        topic: activeTopic || 'Roadmap',
+      },
+    ];
+  }, [roadmapSections, orderedNodes, activeTopic]);
 
   const topicProgress = useMemo(() => {
     const progress: Record<string, { total: number; completed: number }> = {};
@@ -202,46 +173,64 @@ export default function Dashboard() {
     return progress;
   }, [activeTopic, topicProgress]);
 
-  const roadmapTitle = useMemo(() => {
-    const labelMap: Record<string, string> = {
+  const topicLabels = useMemo(
+    () => ({
       OS: 'Operating Systems',
       DB: 'Databases',
       Networking: 'Networking',
       'Distributed Systems': 'Distributed Systems',
       'System Design': 'System Design',
-    };
-    return labelMap[activeTopic] || activeTopic || 'Roadmap';
-  }, [activeTopic]);
+    }),
+    []
+  );
 
-  const roadmapSidebarSections = useMemo(() => {
-    const activeRoadmap = roadmaps.find((topic) => topic.topic === activeTopic);
-    if (activeRoadmap && activeRoadmap.sections.length > 0) {
-      return activeRoadmap.sections.map((section) => section.title);
-    }
-    return roadmapSections.map((section) => section.title);
-  }, [roadmaps, activeTopic, roadmapSections]);
-
-  const streakLabel = useMemo(() => {
-    if (!streakMonth) return '';
-    return new Date(streakMonth.year, streakMonth.month - 1, 1).toLocaleString('default', {
-      month: 'long',
-      year: 'numeric',
-    });
-  }, [streakMonth]);
-
-  const streakGrid = useMemo(() => {
-    if (!streakMonth) return { blanks: 0, days: [] as { date: string; completed: boolean }[] };
-    const firstDayIndex = new Date(streakMonth.year, streakMonth.month - 1, 1).getDay();
-    return { blanks: firstDayIndex, days: streakMonth.days };
-  }, [streakMonth]);
+  const roadmapTitle = useMemo(() => {
+    return topicLabels[activeTopic as keyof typeof topicLabels] || activeTopic || 'Roadmap';
+  }, [activeTopic, topicLabels]);
 
   const xpProgress = Math.min(
     100,
     Math.round((stats.totalXP / Math.max(1, stats.totalXP + stats.xpToNext)) * 100)
   );
 
+  const topicSummary = useMemo(() => {
+    const summaries: Record<string, string> = {
+      OS: 'Master the inner workings of modern kernels. From low-level memory management to high-performance file systems.',
+      DB: 'Design efficient storage engines, indexing strategies, and query optimizations.',
+      Networking: 'Understand protocol stacks, routing, and reliable data transfer at scale.',
+      'Distributed Systems': 'Build resilient systems with consensus, replication, and fault tolerance.',
+      'System Design': 'Architect scalable systems with real-world tradeoffs and patterns.',
+    };
+    return summaries[activeTopic] || 'Choose a roadmap to start your journey.';
+  }, [activeTopic]);
+
+  const nodeDescriptions = useMemo(
+    () => ({
+      'Memory Layout': 'Paging, segmentation, and address translation logic.',
+      'Virtual Memory': 'Paging, segmentation, and address translation logic.',
+      'Stack & Heap': 'Dynamic allocation, pointers, and memory leaks.',
+      'Process Basics': 'Lifecycle of a process: Ready, Running, Waiting.',
+      'Process States': 'Lifecycle of a process: Ready, Running, Waiting.',
+      'Interrupts & syscalls': 'Kernel mode vs User mode transitions.',
+      'File Systems': 'Disk structures, caching, and read/write optimization.',
+      'I/O Scheduling': 'Disk structures and read/write optimization.',
+      'SQL Fundamentals': 'Core SQL concepts and relational modeling.',
+      Indexing: 'B-trees, hashes, and query acceleration.',
+      'TCP/IP Stack': 'Protocol layers, sockets, and packet flow.',
+    }),
+    []
+  );
+
+  const nodeTitleOverrides = useMemo(
+    () => ({
+      'Memory Layout': 'Virtual Memory',
+      'Process Basics': 'Process States',
+    }),
+    []
+  );
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
       <LearningNavbar
         userName={user?.name}
         userEmail={user?.email}
@@ -251,246 +240,186 @@ export default function Dashboard() {
         activeTopic={activeTopic}
         onSelectTopic={setActiveTopic}
       />
-      
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-10 pb-24 lg:grid-cols-12">
-        {/* Left Sidebar - Stats */}
-        <aside className="hidden lg:block lg:col-span-3 space-y-6">
-          {user && (
-            <div className="rounded-2xl border border-white/10 bg-surface p-6">
-              <h2 className="mb-2 text-xl font-bold text-white">Welcome back, {user.name}!</h2>
-              <p className="text-sm text-white/50">{user.email}</p>
-              <div className="mt-4 flex items-center justify-between text-xs text-white/60">
-                <span>Currently studying</span>
-                <span className="text-gold/80">{currentTopics.join(', ') || activeTopic || 'Getting started'}</span>
-              </div>
-            </div>
-          )}
 
-          {/* <div className="rounded-2xl border border-white/10 bg-surface p-6">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Daily Goals</h2>
-            <div className="space-y-4">
-              {goals.map((goal, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white/60">{goal.label}</span>
-                    <span className="font-bold text-primary">{goal.progress}%</span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${goal.progress}%` }}
-                      className="h-full bg-primary" 
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div> */}
-
-          <div className="rounded-2xl border border-white/10 bg-surface p-6">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Your Progress</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/60">
-                  <Star size={16} className="text-primary" />
-                  <span className="text-sm">⚡ Total XP</span>
-                </div>
-                <span className="font-bold">{stats.totalXP.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-white/60">
-                  <Target size={16} className="text-primary" />
-                  <span className="text-sm">🏆 Current Level</span>
-                </div>
-                <span className="font-bold">{stats.level}</span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
-                <div className="h-full bg-primary glow-gold" style={{ width: `${xpProgress}%` }} />
-              </div>
-              <p className="text-center text-[10px] text-white/20">{stats.xpToNext} XP to next level</p>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-surface p-6">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Achievements</h2>
-            <div className="grid grid-cols-3 gap-3">
-              {achievements.map((i) => (
-                <div key={i} className="flex aspect-square items-center justify-center rounded-xl bg-white/5 border border-white/10 text-primary/40">
-                  <Trophy size={20} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content - Skill Tree */}
-        <main className="lg:col-start-5 lg:col-span-5">
-          <div className="relative flex flex-col items-center py-2 md:py-12 lg:pl-6">
-            {isMobile && user && (
-              <div className="w-full max-w-md mb-8">
-                <h2 className="mb-2 text-2xl font-bold text-white">
-                  Welcome back, <span className="text-gold">{user.name}</span>!
-                </h2>
-                <div className="rounded-3xl border border-gold/30 bg-gradient-to-br from-black-deep via-black-deep/95 to-gold/10 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-gold/20 bg-black-deep/50 p-3">
-                    <p className="text-[10px] uppercase tracking-widest text-white/40">⚡ XP</p>
-                    <p className="text-sm font-bold">{stats.totalXP.toLocaleString()}</p>
-                  </div>
-                  <div className="rounded-xl border border-gold/20 bg-black-deep/50 p-3">
-                    <p className="text-[10px] uppercase tracking-widest text-white/40">🏆 Level</p>
-                    <p className="text-sm font-bold">{stats.level}</p>
-                  </div>
-                </div>
-                <div className="mt-4 rounded-xl border border-white/10 bg-black-deep/50 p-3">
-                  <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/40">
-                    <span>Progress</span>
-                    <span className="text-white/70">
-                      {topicCompletion.completed}/{topicCompletion.total}
-                    </span>
-                  </div>
-                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                    <div
-                      className="h-full bg-primary glow-gold"
-                      style={{
-                        width: `${
-                          topicCompletion.total
-                            ? Math.round((topicCompletion.completed / topicCompletion.total) * 100)
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  <p className="mt-2 text-[10px] text-white/50">
-                    Currently studying: {currentTopics.join(', ') || activeTopic || 'Getting started'}
-                  </p>
-                </div>
-                {/* <div className="mt-5 rounded-2xl border border-white/10 bg-black-deep/60 p-4">
-                  <h3 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-white/50">Daily Goals</h3>
-                  <div className="space-y-3">
-                    {goals.map((goal, i) => (
-                      <div key={i} className="space-y-2">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-white/70">{goal.label}</span>
-                          <span className="font-bold text-primary">{goal.progress}%</span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${goal.progress}%` }}
-                            className="h-full bg-primary"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div> */}
-                </div>
-              </div>
-            )}
-            <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-6">
-              <div className="text-center text-3xl font-bold uppercase tracking-widest text-gold">
-                {roadmapTitle}
-              </div>
-              {layoutSections.map((section, sectionIndex) => (
-                <div key={section.title} className="w-full flex flex-col items-center relative">
-                  <div className="mb-16 text-2xl font-bold uppercase tracking-widest text-gold">
-                    {section.title}
-                  </div>
-                  {(() => {
-                    const slantOffset = 22;
-                    const direction = sectionIndex % 2 === 0 ? -1 : 1;
-                    return (
-                      <div className="relative w-full max-w-[300px] px-4 md:px-0">
-                        <div className="relative z-10 flex w-full flex-col gap-6">
-                          {section.nodes.map((node, index) => (
-                            <div
-                              key={node.id}
-                              className="flex w-full h-[170px] items-center justify-center"
-                              style={{ transform: `translateX(${index * slantOffset * direction}px)` }}
-                            >
-                              <SkillNode
-                                node={node}
-                                isLast={index === section.nodes.length - 1}
-                                onClick={handleNodeClick}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div className="mt-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/60 bg-black-deep text-gold shadow-[0_10px_25px_rgba(0,0,0,0.45)]">
-                    <span className="text-2xl">🎁</span>
-                  </div>
-                  {sectionIndex < layoutSections.length - 1 && (
-                    <div className="my-10 h-px w-full bg-white/10" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </main>
-
-        {/* Right Sidebar */}
-        <aside className="hidden lg:flex lg:col-start-10 lg:col-span-3 lg:justify-end">
-          <div className="w-full max-w-[260px] space-y-6 translate-x-10">
-            <div className="rounded-2xl border border-gold/20 bg-gradient-to-b from-black-deep/90 via-black-deep/70 to-black-deep/50 p-6 shadow-[0_18px_50px_rgba(0,0,0,0.45)]">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-gold/90">Roadmap</h2>
-            <div className="space-y-3">
-              {roadmapSidebarSections.length === 0 ? (
-                <div className="text-xs text-white/50">No sections yet</div>
+      <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-12 px-6 py-12 lg:grid-cols-[260px,minmax(0,1fr)] lg:items-start">
+        <aside className="space-y-12 lg:pr-6">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Systems Architecture</p>
+            <div className="mt-5 space-y-1">
+              {roadmaps.length === 0 ? (
+                <div className="text-xs text-white/40">No roadmaps available</div>
               ) : (
-                roadmapSidebarSections.map((title) => (
-                  <div
-                    key={title}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-white/80"
+                roadmaps.map((topic) => (
+                  <button
+                    key={topic.topic}
+                    onClick={() => setActiveTopic(topic.topic)}
+                    className={`group flex w-full items-center justify-between rounded-r-lg py-3 pl-4 pr-3 text-left text-sm font-semibold transition ${
+                      activeTopic === topic.topic
+                        ? 'border-l-2 border-gold bg-white/[0.03] text-gold'
+                        : 'border-l-2 border-transparent text-white/50 hover:bg-white/[0.02] hover:text-white'
+                    }`}
                   >
-                    {title}
-                  </div>
+                    <span>{topicLabels[topic.topic as keyof typeof topicLabels] || topic.topic}</span>
+                    <span className="text-white/20 transition group-hover:text-white/40">›</span>
+                  </button>
                 ))
               )}
             </div>
-            </div>
+          </div>
 
-            <div className="rounded-2xl border border-emerald-400/30 bg-gradient-to-b from-black-deep/90 via-black-deep/70 to-black-deep/50 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-emerald-300">Streak</h2>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-200/80">
-                  {streakMonth?.days.filter((day) => day.completed).length ?? 0} Days
+          <div className="rounded-[1.5rem] bg-[#121212] p-6 shadow-2xl">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Profile Tier</p>
+            <div className="mt-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gold">Lvl {stats.level} Architect</h3>
+              <div className="flex text-gold">
+                 <BadgeCheck size={24} fill="currentColor" stroke="#121212" strokeWidth={1.5} />
+              </div>
+            </div>
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
+                <span>XP Progress</span>
+                <span className="text-white/60">
+                  {stats.totalXP.toLocaleString()} / {(stats.totalXP + stats.xpToNext).toLocaleString()}
                 </span>
               </div>
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-200/80">
-                {streakLabel || 'This Month'}
-              </p>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: streakGrid.blanks }).map((_, index) => (
-                  <div key={`blank-${index}`} className="h-4 w-4" />
-                ))}
-                {streakGrid.days.map((day) => {
-                  const dayNumber = Number(day.date.split('-')[2]);
-                  return (
-                    <div
-                      key={day.date}
-                      className={`h-4 w-4 rounded-[4px] border ${
-                        day.completed
-                          ? 'border-emerald-300/60 bg-emerald-400/90 shadow-[0_0_10px_rgba(16,185,129,0.55)]'
-                          : 'border-white/10 bg-white/5'
-                      }`}
-                    >
-                      <span className="sr-only">{dayNumber}</span>
-                    </div>
-                  );
-                })}
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/5 border border-white/5">
+                <div className="h-full rounded-full bg-gold shadow-[0_0_10px_rgba(255,195,0,0.5)]" style={{ width: `${xpProgress}%` }} />
               </div>
-              <p className="mt-3 text-[10px] uppercase tracking-widest text-emerald-200/70">
-                Updates when you complete a node
-              </p>
+            </div>
+            <div className="mt-8 flex justify-between text-center">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Modules</p>
+                <p className="mt-1 text-base font-bold text-white">
+                  {topicCompletion.completed}/{topicCompletion.total}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Rank</p>
+                <p className="mt-1 text-base font-bold text-white">Top 2%</p>
+              </div>
             </div>
           </div>
         </aside>
-      </div>
 
+        <main className="flex flex-col lg:pl-10">
+          <div className="w-full max-w-3xl text-left">
+            <h1 className="text-[2.75rem] font-extrabold tracking-tight text-white leading-tight">{roadmapTitle}</h1>
+            <p className="mt-4 text-lg text-white/50 leading-relaxed max-w-[600px]">{topicSummary}</p>
+          </div>
+
+          <div className="relative mt-20 w-full max-w-4xl">
+            <div 
+              className="absolute left-1/2 top-0 h-[calc(100%-80px)] w-px -translate-x-1/2" 
+              style={{
+                background: 'linear-gradient(to bottom, rgba(255,195,0,0.6) 0%, rgba(255,195,0,0.3) 40%, rgba(255,255,255,0.05) 75%)'
+              }}
+            />
+
+            <div className="space-y-24">
+              {displaySections.map((section, sectionIndex) => {
+                const sectionActiveOrCompleted = section.nodes.some(n => n.status !== 'locked');
+                
+                return (
+                  <div key={section.title} className="relative">
+                    <div className="flex justify-center relative z-10">
+                      <div className={`inline-flex items-center gap-3 rounded-md border px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest ${
+                        sectionActiveOrCompleted
+                          ? 'border-gold/30 bg-[#1a1a14] text-gold shadow-[0_0_20px_rgba(255,195,0,0.15)]'
+                          : 'border-transparent bg-[#121212] text-white/30'
+                      }`}>
+                        {String(sectionIndex + 1).padStart(2, '0')}. {section.title}
+                      </div>
+                    </div>
+
+                    <div className="mt-16 grid gap-y-16 md:grid-cols-2 md:gap-x-12 lg:gap-x-16">
+                      {(section.nodes.length ? section.nodes : []).map((node, index) => {
+                        const isLocked = node.status === 'locked';
+                        const isCompleted = node.status === 'completed';
+                        const isActive = node.status === 'available';
+                        const displayTitle =
+                          node.title === 'File Systems' && node.status === 'locked'
+                            ? 'I/O Scheduling'
+                            : nodeTitleOverrides[node.title as keyof typeof nodeTitleOverrides] || node.title;
+                        const description =
+                          nodeDescriptions[displayTitle as keyof typeof nodeDescriptions] ||
+                          nodeDescriptions[node.title as keyof typeof nodeDescriptions] ||
+                          'Module description coming soon.';
+                        const alignLeft = index % 2 === 0;
+
+                        return (
+                          <div
+                            key={node.id}
+                            className={`relative flex w-full ${alignLeft ? 'md:justify-end' : 'md:justify-start'}`}
+                          >
+                            <button
+                              onClick={() => !isLocked && handleNodeClick(node)}
+                              className={`group relative w-full max-w-[340px] transition-transform ${!isLocked && 'hover:scale-[1.02]'}`}
+                              disabled={isLocked}
+                            >
+                              <div className={`flex items-center gap-6 ${alignLeft ? 'flex-row-reverse' : 'flex-row'}`}>
+                                
+                                <div className="relative z-10 flex shrink-0">
+                                  <div
+                                    className={`flex h-12 w-12 items-center justify-center rounded-[0.85rem] transition ${
+                                      isCompleted
+                                        ? 'bg-gold text-black shadow-[0_0_20px_rgba(255,195,0,0.4)]'
+                                        : isLocked
+                                          ? 'border border-white/5 bg-[#121212] text-white/20'
+                                          : 'border border-gold bg-black-deep text-gold shadow-[0_0_15px_rgba(255,195,0,0.15)]'
+                                    }`}
+                                  >
+                                    {isLocked ? (
+                                      <Lock size={18} strokeWidth={2.5} />
+                                    ) : isCompleted ? (
+                                      <Check size={22} strokeWidth={3} />
+                                    ) : (
+                                      <Play size={18} fill="currentColor" />
+                                    )}
+                                  </div>
+                                  
+                                  <span
+                                    className={`absolute top-1/2 -translate-y-1/2 hidden h-px w-6 lg:w-8 md:block ${
+                                      isCompleted ? 'bg-gold' : isActive ? 'bg-gold/40' : 'bg-white/10'
+                                    } ${alignLeft ? '-right-6 lg:-right-8' : '-left-6 lg:-left-8'}`}
+                                  />
+                                </div>
+                                
+                                <div className={`flex flex-col ${alignLeft ? 'items-end text-right' : 'items-start text-left'}`}>
+                                  <h4 className={`text-lg font-bold ${isLocked ? 'text-white/30' : 'text-white/90'}`}>
+                                    {displayTitle}
+                                  </h4>
+                                  <p className={`mt-1.5 text-[13px] leading-relaxed ${isLocked ? 'text-white/20' : 'text-white/50'}`}>
+                                    {description}
+                                  </p>
+                                  {isActive && (
+                                    <div className={`mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gold`}>
+                                      {alignLeft ? (
+                                        <>
+                                          <span className="h-1.5 w-1.5 rounded-full bg-gold shadow-[0_0_8px_rgba(255,195,0,1)]" />
+                                          ACTIVE MODULE
+                                        </>
+                                      ) : (
+                                        <>
+                                          ACTIVE MODULE
+                                          <span className="h-1.5 w-1.5 rounded-full bg-gold shadow-[0_0_8px_rgba(255,195,0,1)]" />
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

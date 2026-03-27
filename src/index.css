@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -11,8 +11,10 @@
   --color-gold-light: #FFD700;
   --color-black-deep: #0B0B0B;
   --color-black-soft: #141414;
+  --color-black-muted: #262626;
   
   --font-sans: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-display: "Space Grotesk", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 @layer base {
@@ -50,5 +52,34 @@
 
   .glass {
     @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+
+  .glow-border {
+    @apply border border-gold/20;
+    box-shadow: 0 0 20px rgba(255, 195, 0, 0.2);
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px rgba(255, 195, 0, 0.5);
+  }
+
+  .shadow-gold {
+    box-shadow: 0 0 15px rgba(255, 195, 0, 0.3);
+  }
+
+  .shadow-gold-strong {
+    box-shadow: 0 0 25px rgba(255, 195, 0, 0.5);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
   }
 }
