@@ -30,7 +30,7 @@ const SkillNode: FC<SkillNodeProps> = ({ node, onClick, isLast }) => {
         onClick={() => !isLocked && onClick(node)}
         disabled={isLocked}
         className={cn(
-          "relative flex h-24 w-24 items-center justify-center rounded-full border-4 transition-all duration-300",
+          "relative flex h-24 w-24 items-center justify-center rounded-full border-4 transition-all duration-300 shadow-[0_10px_25px_rgba(0,0,0,0.45)] hover:-translate-y-1",
           isLocked 
             ? "border-white/10 bg-white/5 text-white/20 cursor-not-allowed" 
             : isCompleted

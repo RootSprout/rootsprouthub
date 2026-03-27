@@ -352,49 +352,28 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
-            <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-10">
+            <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-6">
               {layoutSections.map((section, sectionIndex) => (
                 <div key={section.title} className="w-full flex flex-col items-center relative">
-                  <div className="mb-6 text-xs font-bold uppercase tracking-widest text-white/50">
+                  <div className="mb-16 text-xl font-bold uppercase tracking-widest text-white/85">
                     {section.title}
                   </div>
-                  <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[320px] h-full pointer-events-none opacity-20">
-                    {section.nodes.slice(0, -1).map((node, i) => {
-                      const nextNode = section.nodes[i + 1];
-                      const x1 = 160 + node.position.x;
-                      const y1 = node.position.y + 100;
-                      const x2 = 160 + nextNode.position.x;
-                      const y2 = nextNode.position.y + 100;
-                      const bend = isMobile ? 12 : 22;
-                      const midX = (x1 + x2) / 2;
-                      const c1x = midX + (i % 2 === 0 ? -bend : bend);
-                      const c2x = midX + (i % 2 === 0 ? bend : -bend);
-                      const c1y = y1 + (y2 - y1) * 0.35;
-                      const c2y = y1 + (y2 - y1) * 0.65;
-                      return (
-                        <path
-                          key={`${section.title}-${i}`}
-                          d={`M ${x1} ${y1} C ${c1x} ${c1y} ${c2x} ${c2y} ${x2} ${y2}`}
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeDasharray="8 8"
-                          fill="none"
-                        />
-                      );
-                    })}
-                  </svg>
-                  <div className="relative flex flex-col items-center gap-8 z-10">
+                  <div className="relative flex w-full max-w-[360px] flex-col gap-4 px-4 md:px-0">
                     {section.nodes.map((node, index) => (
-                      <SkillNode
+                      <div
                         key={node.id}
-                        node={node}
-                        isLast={index === section.nodes.length - 1}
-                        onClick={handleNodeClick}
-                      />
+                        className={`flex w-full h-[110px] items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
+                      >
+                        <SkillNode
+                          node={node}
+                          isLast={index === section.nodes.length - 1}
+                          onClick={handleNodeClick}
+                        />
+                      </div>
                     ))}
                   </div>
-                  <div className="mt-6 flex h-10 w-10 items-center justify-center rounded-2xl border border-gold/40 bg-gold/10 text-gold">
-                    <span className="text-lg">🎁</span>
+                  <div className="mt-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/60 bg-black-deep text-gold shadow-[0_10px_25px_rgba(0,0,0,0.45)]">
+                    <span className="text-2xl">🎁</span>
                   </div>
                   {sectionIndex < layoutSections.length - 1 && (
                     <div className="my-10 h-px w-full bg-white/10" />
