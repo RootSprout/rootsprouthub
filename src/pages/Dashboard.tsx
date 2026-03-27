@@ -156,47 +156,7 @@ export default function Dashboard() {
 
         {/* Main Content - Skill Tree */}
         <main className="lg:col-span-6">
-          <div className="relative flex flex-col items-center py-10">
-            {roadmaps.length > 0 && activeTopic && (
-              <div className="w-full max-w-3xl mb-10 rounded-3xl border border-white/10 bg-surface p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-white/40">Roadmap</p>
-                    <h3 className="text-2xl font-bold">{activeTopic}</h3>
-                  </div>
-                  {currentTopics.includes(activeTopic) && (
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold/20 text-gold border border-gold/40">
-                      Currently Studying
-                    </span>
-                  )}
-                </div>
-
-                {roadmaps
-                  .filter((topic) => topic.topic === activeTopic)
-                  .map((topic) => (
-                    <div key={topic.topic} className="grid gap-4 md:grid-cols-3">
-                      {topic.sections.map((section) => (
-                        <div key={section.title} className="rounded-2xl border border-white/10 bg-black-deep/40 p-4">
-                          <div className="mb-3">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gold">
-                              {section.title}
-                            </span>
-                          </div>
-                          <div className="space-y-2">
-                            {section.steps.map((step) => (
-                              <div key={step} className="text-xs text-white/70">
-                                {step}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-              </div>
-            )}
-
-            <div className="relative flex flex-col items-center py-10">
+          <div className="relative flex flex-col items-center py-20">
             {/* Connection Lines (SVG) */}
             <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
               {orderedNodes.slice(0, -1).map((node, i) => {
@@ -224,7 +184,6 @@ export default function Dashboard() {
                   onClick={handleNodeClick} 
                 />
               ))}
-            </div>
             </div>
           </div>
         </main>
