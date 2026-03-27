@@ -122,7 +122,7 @@ export default function Dashboard() {
     return Object.entries(map).map(([title, lessons]) => {
       const nodes = orderedNodes.filter((node) => lessons.includes(node.title));
       const completed = nodes.length > 0 && nodes.every((node) => node.status === 'completed');
-      return { title, nodes, completed };
+      return { title, nodes, completed, topic: activeTopic };
     });
   }, [activeTopic, orderedNodes, sectionLessonMap]);
 
@@ -142,18 +142,35 @@ export default function Dashboard() {
         },
       ];
     }
-    let offsetIndex = 0;
     return roadmapSections.map((section) => {
-      const nodes = section.nodes.map((node, index) => {
-        const zigzagIndex = offsetIndex + index;
-        const xOffset = isMobile ? 0 : zigzagIndex % 2 === 0 ? -80 : 80;
-        const yOffset = zigzagIndex * 140;
+      const baseNodes = section.nodes.map((node) => ({ ...node }));
+      const placeholders: Node[] = [
+        {
+          id: `${section.title}-placeholder-1`,
+          title: 'Coming Soon',
+          topic: section.topic as Node['topic'],
+          status: 'locked',
+          progress: 0,
+          position: { x: 0, y: 0 },
+        },
+        {
+          id: `${section.title}-placeholder-2`,
+          title: 'Coming Soon',
+          topic: section.topic as Node['topic'],
+          status: 'locked',
+          progress: 0,
+          position: { x: 0, y: 0 },
+        },
+      ];
+
+      const nodes = [...baseNodes, ...placeholders].map((node, index) => {
+        const xOffset = isMobile ? 0 : index % 2 === 0 ? -80 : 80;
+        const yOffset = index * 140;
         return {
           ...node,
           position: { x: xOffset, y: yOffset },
         };
       });
-      offsetIndex += section.nodes.length + 1;
       return { ...section, nodes };
     });
   }, [roadmapSections, isMobile]);
@@ -189,17 +206,51 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <LearningNavbar userName={user?.name} xp={stats.totalXP} streak={stats.level} />
+      <LearningNavbar
+        userName={user?.name}
+        userEmail={user?.email}
+        xp={stats.totalXP}
+        streak={stats.level}
+        roadmapTopics={roadmaps.map((topic) => topic.topic)}
+        activeTopic={activeTopic}
+        onSelectTopic={setActiveTopic}
+      />
       
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-10 pb-24 lg:grid-cols-12">
         {/* Left Sidebar - Stats */}
         <aside className="hidden lg:block lg:col-span-3 space-y-6">
           {user && (
-            <div className="rounded-2xl border border-white/10 bg-surface p-6">
-              <h2 className="mb-2 text-xl font-bold text-white">Welcome back, {user.name}!</h2>
-              <p className="text-sm text-white/50">{user.email}</p>
+            <div>
+              <h2 className="mb-3 text-xl font-bold text-white">Welcome back, {user.name}!</h2>
+              <div className="rounded-2xl border border-white/10 bg-surface p-6">
+                <div className="flex items-center justify-between text-xs text-white/60">
+                <span>Currently studying</span>
+                <span className="text-gold/80">{currentTopics.join(', ') || activeTopic || 'Getting started'}</span>
+              </div>
+            </div>
             </div>
           )}
+
+          <div className="rounded-2xl border border-white/10 bg-surface p-6">
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Daily Goals</h2>
+            <div className="space-y-4">
+              {goals.map((goal, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white/60">{goal.label}</span>
+                    <span className="font-bold text-primary">{goal.progress}%</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${goal.progress}%` }}
+                      className="h-full bg-primary" 
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <div className="rounded-2xl border border-white/10 bg-surface p-6">
             <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Your Progress</h2>
@@ -207,14 +258,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white/60">
                   <Star size={16} className="text-primary" />
-                  <span className="text-sm">Total XP</span>
+                  <span className="text-sm">⚡ Total XP</span>
                 </div>
                 <span className="font-bold">{stats.totalXP.toLocaleString()}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white/60">
                   <Target size={16} className="text-primary" />
-                  <span className="text-sm">Current Level</span>
+                  <span className="text-sm">🏆 Current Level</span>
                 </div>
                 <span className="font-bold">{stats.level}</span>
               </div>
@@ -241,18 +292,64 @@ export default function Dashboard() {
         <main className="lg:col-span-6">
           <div className="relative flex flex-col items-center py-20">
             {isMobile && user && (
-              <div className="w-full max-w-md mb-8 rounded-2xl border border-white/10 bg-surface p-5">
-                <h2 className="text-lg font-bold text-white">Welcome back, {user.name}!</h2>
-                <p className="text-xs text-white/50">{user.email}</p>
+              <div className="w-full max-w-md mb-8">
+                <h2 className="mb-2 text-2xl font-bold text-white">
+                  Welcome back, <span className="text-gold">{user.name}</span>!
+                </h2>
+                <div className="rounded-3xl border border-gold/30 bg-gradient-to-br from-black-deep via-black-deep/95 to-gold/10 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
-                    <p className="text-[10px] uppercase tracking-widest text-white/40">XP</p>
+                  <div className="rounded-xl border border-gold/20 bg-black-deep/50 p-3">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">⚡ XP</p>
                     <p className="text-sm font-bold">{stats.totalXP.toLocaleString()}</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
-                    <p className="text-[10px] uppercase tracking-widest text-white/40">Level</p>
+                  <div className="rounded-xl border border-gold/20 bg-black-deep/50 p-3">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">🏆 Level</p>
                     <p className="text-sm font-bold">{stats.level}</p>
                   </div>
+                </div>
+                <div className="mt-4 rounded-xl border border-white/10 bg-black-deep/50 p-3">
+                  <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/40">
+                    <span>Progress</span>
+                    <span className="text-white/70">
+                      {topicCompletion.completed}/{topicCompletion.total}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                    <div
+                      className="h-full bg-primary glow-gold"
+                      style={{
+                        width: `${
+                          topicCompletion.total
+                            ? Math.round((topicCompletion.completed / topicCompletion.total) * 100)
+                            : 0
+                        }%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-[10px] text-white/50">
+                    Currently studying: {currentTopics.join(', ') || activeTopic || 'Getting started'}
+                  </p>
+                </div>
+                <div className="mt-5 rounded-2xl border border-white/10 bg-black-deep/60 p-4">
+                  <h3 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-white/50">Daily Goals</h3>
+                  <div className="space-y-3">
+                    {goals.map((goal, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-white/70">{goal.label}</span>
+                          <span className="font-bold text-primary">{goal.progress}%</span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${goal.progress}%` }}
+                            className="h-full bg-primary"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 </div>
               </div>
             )}
@@ -262,19 +359,23 @@ export default function Dashboard() {
                   <div className="mb-6 text-xs font-bold uppercase tracking-widest text-white/50">
                     {section.title}
                   </div>
-                  <svg className="absolute inset-0 h-full w-full pointer-events-none opacity-20">
+                  <svg className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[320px] h-full pointer-events-none opacity-20">
                     {section.nodes.slice(0, -1).map((node, i) => {
                       const nextNode = section.nodes[i + 1];
                       const x1 = 160 + node.position.x;
                       const y1 = node.position.y + 100;
                       const x2 = 160 + nextNode.position.x;
                       const y2 = nextNode.position.y + 100;
-                      const cx = (x1 + x2) / 2;
-                      const cy = (y1 + y2) / 2 - 30;
+                      const bend = isMobile ? 12 : 22;
+                      const midX = (x1 + x2) / 2;
+                      const c1x = midX + (i % 2 === 0 ? -bend : bend);
+                      const c2x = midX + (i % 2 === 0 ? bend : -bend);
+                      const c1y = y1 + (y2 - y1) * 0.35;
+                      const c2y = y1 + (y2 - y1) * 0.65;
                       return (
                         <path
                           key={`${section.title}-${i}`}
-                          d={`M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`}
+                          d={`M ${x1} ${y1} C ${c1x} ${c1y} ${c2x} ${c2y} ${x2} ${y2}`}
                           stroke="white"
                           strokeWidth="2"
                           strokeDasharray="8 8"
@@ -305,105 +406,43 @@ export default function Dashboard() {
           </div>
         </main>
 
-        {/* Right Sidebar - Daily Goals */}
+        {/* Right Sidebar */}
         <aside className="hidden lg:block lg:col-span-3 space-y-6">
-          <div className="rounded-2xl border border-white/10 bg-surface p-6">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-white/40">Daily Goals</h2>
-            <div className="space-y-4">
-              {goals.map((goal, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white/60">{goal.label}</span>
-                    <span className="font-bold text-primary">{goal.progress}%</span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${goal.progress}%` }}
-                      className="h-full bg-primary" 
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="rounded-2xl border border-white/10 bg-surface p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-white/40">Roadmaps</h2>
-              {currentTopics.length > 0 && (
-                <span className="text-[10px] font-bold text-gold/80">Studying {currentTopics.join(', ')}</span>
-              )}
-            </div>
+          {roadmaps.length > 0 && activeTopic && (
+            <div className="rounded-2xl border border-white/10 bg-surface p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-white/40">Roadmap</h2>
+                {currentTopics.length > 0 && (
+                  <span className="text-[10px] font-bold text-gold/80">Studying {currentTopics.join(', ')}</span>
+                )}
+              </div>
 
-            {roadmaps.length === 0 && (
-              <p className="text-xs text-white/50">Roadmaps will appear here once your profile loads.</p>
-            )}
-
-            {roadmaps.length > 0 && (
-              <>
-                <div className="space-y-3 mb-4">
-                  {roadmaps.map((topic) => {
-                    const progress = topicProgress[topic.topic] || { total: 0, completed: 0 };
-                    return (
-                      <button
-                        key={topic.topic}
-                        onClick={() => setActiveTopic(topic.topic)}
-                        className={`w-full rounded-2xl border px-4 py-3 text-left transition-colors ${
-                          activeTopic === topic.topic
-                            ? 'border-gold/50 bg-gold/10'
-                            : 'border-white/10 bg-white/5 hover:border-white/20'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold uppercase tracking-widest text-white/70">
-                            {topic.topic}
-                          </span>
-                          <span className="text-[10px] text-white/50">
-                            {progress.completed}/{progress.total || topic.sections.length}
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                          <div
-                            className="h-full bg-gold/70"
-                            style={{
-                              width: progress.total
-                                ? `${Math.round((progress.completed / progress.total) * 100)}%`
-                                : '0%',
-                            }}
-                          />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {roadmaps
-                  .filter((topic) => topic.topic === activeTopic)
-                  .map((topic) => (
-                    <div key={topic.topic} className="space-y-4">
-                      <div className="text-xs font-bold uppercase tracking-widest text-white/40">
-                        {topic.topic}
-                      </div>
-                      {topic.sections.map((section) => (
-                        <div key={section.title} className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
-                          <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
-                            {section.title}
-                          </p>
-                          <div className="space-y-1">
-                            {section.steps.map((step) => (
-                              <div key={step} className="text-xs text-white/70">
-                                {step}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+              {roadmaps
+                .filter((topic) => topic.topic === activeTopic)
+                .map((topic) => (
+                  <div key={topic.topic} className="space-y-4">
+                    <div className="text-xs font-bold uppercase tracking-widest text-white/40">
+                      {topic.topic}
                     </div>
-                  ))}
-              </>
-            )}
-          </div>
+                    {topic.sections.map((section) => (
+                      <div key={section.title} className="rounded-xl border border-white/10 bg-black-deep/40 p-3">
+                        <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-2">
+                          {section.title}
+                        </p>
+                        <div className="space-y-1">
+                          {section.steps.map((step) => (
+                            <div key={step} className="text-xs text-white/70">
+                              {step}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+            </div>
+          )}
 
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 glow-gold">
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-background">
@@ -417,23 +456,6 @@ export default function Dashboard() {
         </aside>
       </div>
 
-      {isMobile && roadmaps.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black-deep/90 backdrop-blur-md">
-          <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
-            {roadmaps.map((topic) => (
-              <button
-                key={topic.topic}
-                onClick={() => setActiveTopic(topic.topic)}
-                className={`text-[10px] font-bold uppercase tracking-widest ${
-                  activeTopic === topic.topic ? 'text-gold' : 'text-white/50'
-                }`}
-              >
-                {topic.topic}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
