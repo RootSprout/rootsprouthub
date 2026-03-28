@@ -17,6 +17,7 @@ type DiagramManagerContent = {
   roles: Role[];
   terminalCommand: string;
   terminalReason: string;
+  diagramImage: string;
 };
 
 function parseDiagramManagerContent(content: string): DiagramManagerContent {
@@ -28,6 +29,7 @@ function parseDiagramManagerContent(content: string): DiagramManagerContent {
     roles: [],
     terminalCommand: '',
     terminalReason: '',
+    diagramImage: ''
   };
 
   let mode: 'roles' | 'terminal' | 'reason' = 'roles';
@@ -39,6 +41,12 @@ function parseDiagramManagerContent(content: string): DiagramManagerContent {
       result.title = line.replace('Diagram:', '').trim() || result.title;
       return;
     }
+
+    if (line.startsWith('Diagram Image:')) {
+      result.diagramImage = line.replace('Diagram Image:', '').trim();
+      return;
+    }
+
     if (line === 'Terminal Prompt') {
       mode = 'terminal';
       return;
@@ -84,8 +92,20 @@ function parseDiagramManagerContent(content: string): DiagramManagerContent {
   return result;
 }
 
-export default function DiagramManagerCard({ content, diagramSrc }: DiagramManagerCardProps) {
+export default function DiagramManagerCard({ content}: DiagramManagerCardProps) {
   const data = parseDiagramManagerContent(content);
+  const resolveImage = (src: string) => {
+    if (!src) return '';
+    if (src.startsWith('http') || src.startsWith('/')) return src;
+  
+    try {
+      return new URL(`../../assets/OS/section-1/${src}`, import.meta.url).toString();
+    } catch {
+      return '';
+    }
+  };
+  
+  const finalImage = resolveImage(data.diagramImage);
 
   return (
     <motion.div
@@ -96,12 +116,12 @@ export default function DiagramManagerCard({ content, diagramSrc }: DiagramManag
     >
       <div className="rounded-3xl border border-white/10 bg-[#121212] p-7 md:p-9 text-white/80 shadow-[0_0_22px_rgba(0,0,0,0.25)]">
         <div className="text-sm md:text-base font-bold uppercase tracking-[0.35em] text-[#FFC107]">
-          Diagram: {data.title}
+          Diagram
         </div>
-        {diagramSrc && (
+        {finalImage && (
           <div className="mt-8 overflow-hidden rounded-2xl border border-[#FFC107]/30 bg-[#0f0f0f] p-6 md:p-8 shadow-[0_0_18px_rgba(255,195,0,0.12)]">
             <img
-              src={diagramSrc}
+              src={finalImage}
               alt={`Diagram: ${data.title}`}
               className="h-[320px] w-full object-contain md:h-[420px]"
               loading="lazy"

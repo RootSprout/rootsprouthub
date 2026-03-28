@@ -277,12 +277,10 @@ export default function LessonPage() {
 
                 {steps[activeStep].uiHint === 'intro_card' ? (
                   <IntroCard title={steps[activeStep].title} content={steps[activeStep].content} diagramSrc={osDiagram} />
-                ) : steps[activeStep].uiHint === 'intro_card_variant' ? (
-                  <IntroCardVariant title={steps[activeStep].title} content={steps[activeStep].content} />
                 ) : steps[activeStep].uiHint === 'visual_mapping' ? (
                   <MentalModelCard title={steps[activeStep].title} content={steps[activeStep].content} />
                 ) : steps[activeStep].uiHint === 'diagram_manager' ? (
-                  <DiagramManagerCard content={steps[activeStep].content} diagramSrc={osDiagram} />
+                  <DiagramManagerCard content={steps[activeStep].content}/>
                 ) : steps[activeStep].uiHint === 'bullet_points' ? (
                   <CoreConceptCard content={steps[activeStep].content} />
                 ) : (
