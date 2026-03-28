@@ -42,6 +42,7 @@ const headingMap: Record<string, keyof SectionMap | 'diagram'> = {
   'Diagram: Traffic Flow Model': 'diagramText',
   'Terminal Prompt': 'terminalPrompt',
   'Why this split exists:': 'whySplit',
+  'What does a System Call actually do?': 'keyPoints',
 };
 
 function parseIntroContent(content: string): SectionMap {
