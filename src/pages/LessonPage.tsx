@@ -153,7 +153,7 @@ export default function LessonPage() {
       <main className="flex flex-1 flex-col md:flex-row md:overflow-hidden">
         <section
           className={cn(
-            "flex w-full flex-col border-b border-white/10 p-6 md:w-2/3 md:border-b-0 md:border-r md:p-10 overflow-y-auto"
+            "flex w-full flex-col border-b border-white/10 p-6 md:w-[55%] md:border-b-0 md:border-r md:p-10 overflow-y-auto"
           )}
         >
           {!isLoading && steps.length > 0 && (
@@ -292,7 +292,7 @@ export default function LessonPage() {
           </div>
         </section>
 
-        <section className="relative flex min-h-[60vh] w-full md:w-1/3 flex-col bg-[#050505] p-6 md:min-h-full">
+        <section className="relative flex min-h-[60vh] w-full md:w-[40%] flex-col bg-[#050505] p-6 md:min-h-full">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-white/40">
                 <TerminalIcon size={16} />
@@ -305,7 +305,7 @@ export default function LessonPage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto font-mono text-sm space-y-1">
+            <div className="flex-1 overflow-y-auto font-mono text-xl space-y-2">
               {terminalHistory.map((line, i) => (
                 <div
                   key={i}
@@ -322,14 +322,14 @@ export default function LessonPage() {
                   {line}
                 </div>
               ))}
-              <form onSubmit={handleTerminalSubmit} className="flex items-center gap-2">
-                <span className="text-primary font-bold">$</span>
+              <form onSubmit={handleTerminalSubmit} className="flex items-center gap-2 text-xl">
+                <span className="text-primary font-bold text-xl">$</span>
                 <input
                   autoFocus
                   type="text"
                   value={terminalInput}
                   onChange={(e) => setTerminalInput(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-white"
+                  className="flex-1 bg-transparent outline-none text-white text-xl"
                   placeholder="Type command..."
                 />
               </form>
