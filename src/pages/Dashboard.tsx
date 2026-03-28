@@ -6,12 +6,18 @@ import { Check, Lock, Play, BadgeCheck } from 'lucide-react';
 import { getDashboard, getRoadmaps, type RoadmapTopic } from '../api/learning';
 
 const INITIAL_NODES: Node[] = [
-  { id: '1', title: 'Process Basics', topic: 'OS', status: 'completed', progress: 100, position: { x: 0, y: 0 } },
-  { id: '2', title: 'Memory Layout', topic: 'OS', status: 'available', progress: 45, position: { x: 80, y: 120 } },
-  { id: '3', title: 'File Systems', topic: 'OS', status: 'locked', progress: 0, position: { x: -80, y: 240 } },
-  { id: '4', title: 'SQL Fundamentals', topic: 'DB', status: 'available', progress: 0, position: { x: 120, y: 360 } },
-  { id: '5', title: 'Indexing', topic: 'DB', status: 'locked', progress: 0, position: { x: 0, y: 480 } },
-  { id: '6', title: 'TCP/IP Stack', topic: 'Networking', status: 'locked', progress: 0, position: { x: -120, y: 600 } },
+  { id: '7', title: 'What is an Operating System?', topic: 'OS', status: 'available', progress: 0, position: { x: 0, y: 0 } },
+  { id: '8', title: 'User Mode vs Kernel Mode', topic: 'OS', status: 'locked', progress: 0, position: { x: 80, y: 120 } },
+  { id: '9', title: 'System Calls', topic: 'OS', status: 'locked', progress: 0, position: { x: -80, y: 240 } },
+  { id: '10', title: 'OS as Resource Manager', topic: 'OS', status: 'locked', progress: 0, position: { x: 120, y: 360 } },
+  { id: '11', title: 'Real System Observation', topic: 'OS', status: 'locked', progress: 0, position: { x: 0, y: 480 } },
+  { id: '12', title: 'Mental Model Diagram', topic: 'OS', status: 'locked', progress: 0, position: { x: -120, y: 600 } },
+  { id: '1', title: 'Process Basics', topic: 'OS', status: 'locked', progress: 0, position: { x: 120, y: 720 } },
+  { id: '2', title: 'Memory Layout', topic: 'OS', status: 'locked', progress: 0, position: { x: 0, y: 840 } },
+  { id: '3', title: 'File Systems', topic: 'OS', status: 'locked', progress: 0, position: { x: -120, y: 960 } },
+  { id: '4', title: 'SQL Fundamentals', topic: 'DB', status: 'available', progress: 0, position: { x: 120, y: 1080 } },
+  { id: '5', title: 'Indexing', topic: 'DB', status: 'locked', progress: 0, position: { x: 0, y: 1200 } },
+  { id: '6', title: 'TCP/IP Stack', topic: 'Networking', status: 'locked', progress: 0, position: { x: -120, y: 1320 } },
 ];
 
 export default function Dashboard() {
@@ -76,6 +82,14 @@ export default function Dashboard() {
   const sectionLessonMap = useMemo(
     () => ({
       OS: {
+        Foundations: [
+          'What is an Operating System?',
+          'User Mode vs Kernel Mode',
+          'System Calls',
+          'OS as Resource Manager',
+          'Real System Observation',
+          'Mental Model Diagram',
+        ],
         'Memory Management': ['Memory Layout'],
         'CPU Scheduling': ['Process Basics'],
         'File Systems': ['File Systems'],
@@ -214,6 +228,12 @@ export default function Dashboard() {
       'Interrupts & syscalls': 'Kernel mode vs User mode transitions.',
       'File Systems': 'Disk structures, caching, and read/write optimization.',
       'I/O Scheduling': 'Disk structures and read/write optimization.',
+      'What is an Operating System?': 'Think like the OS: programs, resources, and control.',
+      'User Mode vs Kernel Mode': 'Security boundaries between apps and the kernel.',
+      'System Calls': 'Safe requests from apps to the operating system.',
+      'OS as Resource Manager': 'Scheduling CPU and memory across apps.',
+      'Real System Observation': 'Use terminal tools to observe real processes.',
+      'Mental Model Diagram': 'Assemble the full OS stack in one picture.',
       'SQL Fundamentals': 'Core SQL concepts and relational modeling.',
       Indexing: 'B-trees, hashes, and query acceleration.',
       'TCP/IP Stack': 'Protocol layers, sockets, and packet flow.',
@@ -289,7 +309,7 @@ export default function Dashboard() {
                           ? 'border-gold/30 bg-[#1a1a14] text-gold shadow-[0_0_20px_rgba(255,195,0,0.15)]'
                           : 'border-transparent bg-[#121212] text-white/30'
                       }`}>
-                        {String(sectionIndex + 1).padStart(2, '0')}. {section.title}
+                        {sectionIndex + 1}. {section.title}
                       </div>
                     </div>
 

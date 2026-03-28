@@ -130,7 +130,7 @@ export default function LessonPage() {
                   <h1 className="text-4xl font-black tracking-tight">{steps[activeStep].title}</h1>
                 </div>
 
-                <div className="rounded-2xl border border-white/5 bg-surface p-8 leading-relaxed text-white/70">
+                <div className="rounded-2xl border border-white/5 bg-surface p-8 leading-relaxed text-white/70 whitespace-pre-line">
                   {steps[activeStep].content}
                 </div>
 
@@ -139,7 +139,7 @@ export default function LessonPage() {
                     <Play size={18} fill="currentColor" />
                     Your Challenge
                   </h3>
-                  <p className="text-sm text-white/80">{steps[activeStep].task}</p>
+                  <p className="text-sm text-white/80 whitespace-pre-line">{steps[activeStep].task}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
