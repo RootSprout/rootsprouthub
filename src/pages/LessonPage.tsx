@@ -212,7 +212,7 @@ export default function LessonPage() {
                   )}
                 </div>
 
-                {steps[activeStep].uiHint === 'intro_card' ? (
+                {steps[activeStep].uiHint === 'intro_card' || steps[activeStep].uiHint === 'visual_mapping' ? (
                   <IntroCard title={steps[activeStep].title} content={steps[activeStep].content} diagramSrc={osDiagram} />
                 ) : steps[activeStep].uiHint === 'bullet_points' ? (
                   <CoreConceptCard content={steps[activeStep].content} />

@@ -10,7 +10,11 @@ type SectionMap = {
   description: string[];
   keyPoints: { title: string; detail: string }[];
   examples: { title: string; detail: string }[];
-  mentalModel: string[];
+  visualMapping: string[];
+  keyInsight: string[];
+  observe: string[];
+  diagramText: string[];
+  terminalPrompt: string[];
 };
 
 const headingMap: Record<string, keyof SectionMap | 'diagram'> = {
@@ -18,7 +22,12 @@ const headingMap: Record<string, keyof SectionMap | 'diagram'> = {
   'What does an OS actually do?': 'keyPoints',
   'Real-Life Examples': 'examples',
   'Mermaid Diagram (Enhanced Mental Model)': 'diagram',
-  'Terminal Prompt': 'mentalModel',
+  'Visual Mapping': 'visualMapping',
+  'Think of the system like a busy city:': 'visualMapping',
+  'Key Insight': 'keyInsight',
+  'Observe:': 'observe',
+  'Diagram: Traffic Flow Model': 'diagramText',
+  'Terminal Prompt': 'terminalPrompt',
 };
 
 function parseIntroContent(content: string) {
@@ -26,7 +35,11 @@ function parseIntroContent(content: string) {
     description: [],
     keyPoints: [],
     examples: [],
-    mentalModel: [],
+    visualMapping: [],
+    keyInsight: [],
+    observe: [],
+    diagramText: [],
+    terminalPrompt: [],
   };
   let current: keyof SectionMap | 'diagram' = 'description';
   const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
@@ -49,8 +62,24 @@ function parseIntroContent(content: string) {
         return;
       }
     }
-    if (current === 'mentalModel') {
-      sections.mentalModel.push(line);
+    if (current === 'visualMapping') {
+      sections.visualMapping.push(line);
+      return;
+    }
+    if (current === 'keyInsight') {
+      sections.keyInsight.push(line);
+      return;
+    }
+    if (current === 'observe') {
+      sections.observe.push(line);
+      return;
+    }
+    if (current === 'diagramText') {
+      sections.diagramText.push(line);
+      return;
+    }
+    if (current === 'terminalPrompt') {
+      sections.terminalPrompt.push(line);
       return;
     }
     if (current !== 'diagram') {
@@ -117,6 +146,79 @@ export default function IntroCard({ title, content, diagramSrc }: IntroCardProps
             ))}
           </div>
         </div>
+
+        {sections.visualMapping.length > 0 && (
+          <div>
+            <div className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
+              Visual Mapping
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-[#1C1C1C] p-6 text-white/80 shadow-[0_0_18px_rgba(255,195,0,0.06)]">
+              <div className="grid gap-3 md:grid-cols-3">
+                {sections.visualMapping.map((line) => (
+                  <div
+                    key={line}
+                    className="rounded-xl border border-[#FFC107]/30 bg-[#141414] px-4 py-3 text-xs md:text-sm font-semibold text-white/85"
+                  >
+                    {line}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {sections.keyInsight.length > 0 && (
+          <div className="rounded-2xl border border-[#FFC107]/30 bg-[#14110a] p-6 text-white/80 shadow-[0_0_22px_rgba(255,195,0,0.12)]">
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#FFC107]">
+              Key Insight
+            </div>
+            <div className="mt-4 space-y-1 text-sm md:text-base leading-relaxed whitespace-pre-line">
+              {sections.keyInsight.map((line) => (
+                <div key={line}>{line}</div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {sections.observe.length > 0 && (
+          <div className="rounded-2xl border border-white/10 bg-[#181818] p-6 text-white/80 shadow-[0_0_18px_rgba(255,195,0,0.06)]">
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
+              Observe
+            </div>
+            <ul className="mt-4 space-y-2 text-sm md:text-base text-white/70">
+              {sections.observe.map((line) => (
+                <li key={line} className="flex items-start gap-2">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#FFC107]" />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {sections.diagramText.length > 0 && (
+          <div className="rounded-2xl border border-[#FFC107]/30 bg-[#0f0d08] p-6 shadow-[0_0_25px_rgba(255,195,0,0.12)]">
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#FFC107]">
+              Diagram: Traffic Flow Model
+            </div>
+            <pre className="mt-4 whitespace-pre-wrap font-mono text-xs md:text-sm text-white/80">
+              {sections.diagramText.join('\n')}
+            </pre>
+          </div>
+        )}
+
+        {sections.terminalPrompt.length > 0 && (
+          <div className="rounded-2xl border border-white/10 bg-[#0f0f0f] p-6 shadow-[0_0_18px_rgba(255,195,0,0.06)]">
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
+              Terminal Prompt
+            </div>
+            <div className="mt-4 space-y-2 font-mono text-sm md:text-base text-white/80">
+              {sections.terminalPrompt.map((line) => (
+                <div key={line}>{line}</div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div>
           <div className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
