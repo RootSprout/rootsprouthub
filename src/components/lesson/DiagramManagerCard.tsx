@@ -95,28 +95,28 @@ export default function DiagramManagerCard({ content, diagramSrc }: DiagramManag
       className="mx-auto w-full max-w-[1200px] px-4 md:px-8"
     >
       <div className="rounded-3xl border border-white/10 bg-[#121212] p-7 md:p-9 text-white/80 shadow-[0_0_22px_rgba(0,0,0,0.25)]">
-        <div className="text-xs md:text-sm font-bold uppercase tracking-[0.35em] text-[#FFC107]">
+        <div className="text-sm md:text-base font-bold uppercase tracking-[0.35em] text-[#FFC107]">
           Diagram: {data.title}
         </div>
         {diagramSrc && (
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[#FFC107]/30 bg-[#0f0f0f] p-4 md:p-5 shadow-[0_0_18px_rgba(255,195,0,0.12)]">
+          <div className="mt-8 overflow-hidden rounded-2xl border border-[#FFC107]/30 bg-[#0f0f0f] p-6 md:p-8 shadow-[0_0_18px_rgba(255,195,0,0.12)]">
             <img
               src={diagramSrc}
               alt={`Diagram: ${data.title}`}
-              className="h-[220px] w-full object-contain md:h-[280px]"
+              className="h-[320px] w-full object-contain md:h-[420px]"
               loading="lazy"
             />
           </div>
         )}
         {data.summary && (
-          <p className="mt-4 text-sm md:text-base text-white/75">{data.summary}</p>
+          <p className="mt-6 text-base md:text-lg text-white/75">{data.summary}</p>
         )}
         {data.lead && (
-          <p className="mt-3 text-sm md:text-base text-[#FFD166]/85 underline decoration-[#FFD166]/70 underline-offset-4">
+          <p className="mt-5 text-base md:text-lg text-[#FFD166]/85 underline decoration-[#FFD166]/70 underline-offset-4">
             {data.lead}
           </p>
         )}
-        <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <div className="mt-7 grid gap-4 md:grid-cols-2">
           {data.roles.map((role) => (
             <div
               key={`${role.title}-${role.detail}`}
