@@ -207,19 +207,6 @@ export default function IntroCard({ title, content, diagramSrc }: IntroCardProps
           </div>
         )}
 
-        {sections.terminalPrompt.length > 0 && (
-          <div className="rounded-2xl border border-white/10 bg-[#0f0f0f] p-6 shadow-[0_0_18px_rgba(255,195,0,0.06)]">
-            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
-              Terminal Prompt
-            </div>
-            <div className="mt-4 space-y-2 font-mono text-sm md:text-base text-white/80">
-              {sections.terminalPrompt.map((line) => (
-                <div key={line}>{line}</div>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div>
           <div className="mb-4 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
             Device Ecosystem
