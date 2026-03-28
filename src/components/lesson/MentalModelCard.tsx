@@ -106,31 +106,36 @@ export default function MentalModelCard({ content }: MentalModelCardProps) {
         return '';
       }
     };
-  const splitKeyInsights = (lines: string[]) => {
-    const withoutOS: string[] = [];
-    const withOS: string[] = [];
-    let bucket: 'without' | 'with' | null = null;
-    lines.forEach((line) => {
-      const cleaned = stripEmoji(line).replace(/:$/, '').trim();
-      if (!cleaned) return;
-      if (['without the os', 'without kernel protection'].includes(cleaned.toLowerCase())) {
-        bucket = 'without';
-        sections.keyInsightWithoutLabel = line;
-        return;
-      }
-      if (['with the os', 'with kernel protection'].includes(cleaned.toLowerCase())) {
-        bucket = 'with';
-        sections.keyInsightWithLabel = line;
-        return;
-      }
-      if (bucket === 'without') {
-        withoutOS.push(cleaned);
-      } else if (bucket === 'with') {
-        withOS.push(cleaned);
-      }
-    });
-    return { withoutOS, withOS };
-  };
+    const splitKeyInsights = (lines: string[]) => {
+      const withoutOS: string[] = [];
+      const withOS: string[] = [];
+      let bucket: 'without' | 'with' | null = null;
+    
+      lines.forEach((line) => {
+        const cleaned = stripEmoji(line).replace(/:$/, '').trim().toLowerCase();
+        if (!cleaned) return;
+    
+        if (cleaned.startsWith('without')) {
+          bucket = 'without';
+          sections.keyInsightWithoutLabel = line;
+          return;
+        }
+    
+        if (cleaned.startsWith('with')) {
+          bucket = 'with';
+          sections.keyInsightWithLabel = line;
+          return;
+        }
+    
+        if (bucket === 'without') {
+          withoutOS.push(line);
+        } else if (bucket === 'with') {
+          withOS.push(line);
+        }
+      });
+    
+      return { withoutOS, withOS };
+    };
   const keyInsightGroups = splitKeyInsights(sections.keyInsight);
   const summaryText =
     sections.summary.join(' ') ||
