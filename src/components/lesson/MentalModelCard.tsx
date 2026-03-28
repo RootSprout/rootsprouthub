@@ -95,17 +95,17 @@ export default function MentalModelCard({ content }: MentalModelCardProps) {
   const sections = parseMentalModelContent(content);
   const stripEmoji = (value: string) =>
     value.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim();
-  const resolveImage = (src: string) => {
-    if (!src) return '';
-    if (src.startsWith('http') || src.startsWith('/')) return src;
-    if (src === 'traffic-flow-diagram') {
-      return new URL('../../assets/OS/section-1/traffic-flow-diagram.png', import.meta.url).toString();
-    }
-    if (src === 'os-diagram') {
-      return new URL('../../assets/OS/section-1/1.png', import.meta.url).toString();
-    }
-    return src;
-  };
+    const resolveImage = (src: string) => {
+      if (!src) return '';
+    
+      if (src.startsWith('http') || src.startsWith('/')) return src;
+    
+      try {
+        return new URL(`../../assets/OS/section-1/${src}`, import.meta.url).toString();
+      } catch {
+        return '';
+      }
+    };
   const splitKeyInsights = (lines: string[]) => {
     const withoutOS: string[] = [];
     const withOS: string[] = [];
@@ -153,7 +153,7 @@ export default function MentalModelCard({ content }: MentalModelCardProps) {
       </div>
 
       <div className="mt-10">
-        <div className="mb-4 min-h-[14px] text-[10px] font-bold uppercase tracking-[0.35em] text-white/50">
+        <div className="mb-4 text-[11px] min-h-[14px] text-[10px] font-bold uppercase tracking-[0.35em] text-white/50">
           {sections.visualMappingLabel || ''}
         </div>
         {sections.visualMapping.length > 0 ? (
@@ -173,7 +173,7 @@ export default function MentalModelCard({ content }: MentalModelCardProps) {
       </div>
 
       <div className="mt-8">
-        <div className="mb-4 min-h-[14px] text-[10px] font-bold uppercase tracking-[0.35em] text-primary">
+        <div className="mb-4 min-h-[10px] text-[11px] font-bold uppercase tracking-[0.35em] text-primary">
           {sections.keyInsightLabel || ''}
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -213,7 +213,7 @@ export default function MentalModelCard({ content }: MentalModelCardProps) {
       </div>
 
       <div className="mt-8 rounded-3xl border border-white/10 bg-[#0f0f0f] p-7 md:p-9 text-white/75">
-        <div className="min-h-[14px] text-[10px] font-bold uppercase tracking-[0.35em] text-white/50">
+        <div className="min-h-[14px] text-[13px] font-bold uppercase tracking-[0.35em] text-white/50">
           {sections.observeLabel || ''}
         </div>
         {sections.observe.length > 0 ? (
@@ -230,8 +230,8 @@ export default function MentalModelCard({ content }: MentalModelCardProps) {
       </div>
 
       <div className="mt-8 rounded-3xl border border-primary/30 bg-[#0b0a07] p-7 md:p-9 shadow-[0_0_26px_rgba(255,195,0,0.12)]">
-        <div className="min-h-[14px] text-[10px] font-bold uppercase tracking-[0.35em] text-primary">
-          {sections.diagramLabel || ''}
+        <div className="min-h-[14px] text-[13px] font-bold uppercase tracking-[0.35em] text-primary">
+          DIAGRAM
         </div>
         {diagramImage ? (
           <img
